@@ -15,6 +15,8 @@
             <a href="index.html" class="nav-link">首页</a>
             <a href="publish.html" class="nav-link">发布蓝图</a>
             <a href="profile.html" class="nav-link">我的发布</a>
+            <a href="login.html" class="btn btn-outline">登录</a>
+            <a href="register.html" class="btn btn-primary">注册</a>
         </div>
     </nav>
 
@@ -23,17 +25,28 @@
             <h2 style="margin-bottom: 24px; text-align: center;">注册</h2>
             <form id="registerForm">
                 <div class="form-group">
-                    <label>用户名</label>
+                    <label>用户名 *</label>
                     <input type="text" id="username" placeholder="至少3个字符" required>
                 </div>
                 <div class="form-group">
-                    <label>密码</label>
+                    <label>密码 *</label>
                     <input type="password" id="password" placeholder="至少6个字符" required>
                 </div>
                 <div class="form-group">
-                    <label>确认密码</label>
+                    <label>确认密码 *</label>
                     <input type="password" id="confirmPassword" required>
                 </div>
+                <div class="form-group">
+                    <label>邮箱（可选，用于找回密码）</label>
+                    <input type="email" id="email" placeholder="example@domain.com">
+                </div>
+                
+                <!-- 协议勾选 -->
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="agreeTerms" required>
+                    <label>我已阅读并同意 <a href="#" id="showAgreement">《用户协议》</a> 和 <a href="#" id="showDisclaimer">《免责声明》</a></label>
+                </div>
+                
                 <button type="submit" class="btn btn-primary" style="width: 100%;">注册</button>
             </form>
             <p style="text-align: center; margin-top: 20px; color: #6b7280;">
@@ -42,14 +55,102 @@
         </div>
     </main>
 
+    <!-- 用户协议弹窗 -->
+    <div id="agreementModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
+        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 20px; color: #3b82f6;">用户协议</h3>
+            <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 接受协议</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">注册或使用本网站即表示您同意本协议的全部条款。如果您不同意，请勿注册或使用本网站。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 网站性质</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联或背书关系。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 用户承诺</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">您承诺并保证：</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（1）上传的蓝图为您本人创作，或已获得原作者的明确书面授权；</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（2）您提供的链接指向的文件不包含恶意代码、病毒、后门程序或其他破坏性内容；</p>
+            <p style="margin-bottom: 12px; color: #9ca3af; margin-left: 20px;">（3）您上传的内容不侵犯任何第三方的知识产权、隐私权或其他合法权益。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 禁止上传的内容</h4>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（1）包含病毒、恶意代码、后门程序的蓝图文件；</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（2）未经原作者许可的付费蓝图、付费模组；</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（3）包含色情、暴力、仇恨言论或非法内容；</p>
+            <p style="margin-bottom: 12px; color: #9ca3af; margin-left: 20px;">（4）纯粹用于广告推广的链接或重复发布的灌水内容。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 违规处理</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">如您违反本协议，本网站有权删除内容、封禁账号、封禁IP，并在必要时向有关部门提供您的注册信息。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 责任归属</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">您对您账号下的所有行为承担全部法律责任。因您上传的内容引发的任何索赔由您独立承担。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 协议的修改</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本协议的权利，继续使用即视为接受修改。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 联系我们</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">如有疑问，请联系：admin@createmechanical.com</p>
+            
+            <button id="closeAgreement" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
+        </div>
+    </div>
+
+    <!-- 免责声明弹窗 -->
+    <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
+        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
+            <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 关联关系声明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联、合作或背书关系。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 用户内容免责</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站所有蓝图文件、链接及文字描述均由用户自行上传。本网站不对用户上传内容的合法性、安全性、准确性、完整性作任何保证。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 使用风险</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">下载或使用本网站的任何蓝图，风险由您自行承担。因使用本网站内容导致的任何损失，本网站不承担任何赔偿责任。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 第三方链接</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站可能包含指向第三方网站的链接，本网站不对第三方网站的内容、安全性或可用性承担任何责任。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 侵权通知</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">若您认为本网站存在侵犯您合法权益的内容，请联系：admin@createmechanical.com。本网站在收到有效通知后48小时内核实并处理。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 声明的修改</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本免责声明的权利，修改后的版本自公布之日起生效。</p>
+            
+            <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
+        // 协议弹窗
+        document.getElementById('showAgreement').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('agreementModal').style.display = 'flex';
+        });
+        document.getElementById('closeAgreement').addEventListener('click', () => {
+            document.getElementById('agreementModal').style.display = 'none';
+        });
+        
+        // 免责声明弹窗
+        document.getElementById('showDisclaimer').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('disclaimerModal').style.display = 'flex';
+        });
+        document.getElementById('closeDisclaimer').addEventListener('click', () => {
+            document.getElementById('disclaimerModal').style.display = 'none';
+        });
+        
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const email = document.getElementById('email').value.trim();
+            const agreeTerms = document.getElementById('agreeTerms').checked;
             
             if (username.length < 3) {
                 showMessage('用户名至少3个字符', 'error');
@@ -63,12 +164,21 @@
                 showMessage('两次输入的密码不一致', 'error');
                 return;
             }
+            if (!agreeTerms) {
+                showMessage('请阅读并同意用户协议和免责声明', 'error');
+                return;
+            }
             
             try {
                 const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ 
+                        username, 
+                        password, 
+                        email: email || '',
+                        agreedTosVersion: 'v1.0'
+                    })
                 });
                 const result = await response.json();
                 
