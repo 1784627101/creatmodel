@@ -5,6 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 新增样式 */
+        .verify-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .verify-row input {
+            flex: 1;
+        }
+        .verify-row button {
+            width: auto;
+            padding: 12px 20px;
+            white-space: nowrap;
+        }
+        .captcha-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .captcha-row input {
+            flex: 1;
+        }
+        .captcha-img {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .field-note {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        .error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .success {
+            color: #22c55e;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -36,9 +86,36 @@
                     <label>确认密码 *</label>
                     <input type="password" id="confirmPassword" required>
                 </div>
+                
+                <!-- 邮箱（新增验证） -->
                 <div class="form-group">
-                    <label>邮箱（可选，用于找回密码）</label>
-                    <input type="email" id="email" placeholder="example@domain.com">
+                    <label>邮箱 *</label>
+                    <div class="verify-row">
+                        <input type="email" id="email" placeholder="请输入邮箱地址" required>
+                        <button type="button" id="sendVerifyBtn" class="btn btn-outline">发送验证码</button>
+                    </div>
+                    <div class="field-note">用于找回密码，每个账号只能绑定一个邮箱。</div>
+                    <div id="emailError" class="error"></div>
+                    <div id="emailSuccess" class="success"></div>
+                </div>
+
+                <!-- 邮箱验证码 -->
+                <div class="form-group">
+                    <label>邮箱验证码 *</label>
+                    <input type="text" id="verifyCode" placeholder="请输入邮箱验证码" required>
+                    <div class="field-note">请登录邮箱获取收到的验证码。</div>
+                    <div id="codeError" class="error"></div>
+                </div>
+
+                <!-- 人机验证 -->
+                <div class="form-group">
+                    <label>验证码 *</label>
+                    <div class="captcha-row">
+                        <input type="text" id="captchaInput" placeholder="请输入验证码" required>
+                        <div class="captcha-img" id="captchaText" onclick="refreshCaptcha()">------</div>
+                    </div>
+                    <div class="field-note">请输入人机验证码。</div>
+                    <div id="captchaError" class="error"></div>
                 </div>
                 
                 <!-- 协议勾选 -->
@@ -55,7 +132,7 @@
         </div>
     </main>
 
-    <!-- 用户协议弹窗 -->
+    <!-- 用户协议弹窗（保持原样） -->
     <div id="agreementModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #3b82f6;">用户协议</h3>
@@ -95,7 +172,7 @@
         </div>
     </div>
 
-    <!-- 免责声明弹窗 -->
+    <!-- 免责声明弹窗（保持原样） -->
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
@@ -125,6 +202,31 @@
 
     <script src="script.js"></script>
     <script>
+        // 人机验证码
+        let currentCaptcha = '';
+        
+        function generateCaptcha() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+            let captcha = '';
+            for (let i = 0; i < 6; i++) {
+                captcha += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return captcha;
+        }
+        
+        function refreshCaptcha() {
+            currentCaptcha = generateCaptcha();
+            const captchaEl = document.getElementById('captchaText');
+            if (captchaEl) captchaEl.innerText = currentCaptcha;
+        }
+        
+        // 初始化验证码
+        refreshCaptcha();
+        
+        // 发送验证码倒计时
+        let countdown = 0;
+        let countdownTimer = null;
+        
         // 协议弹窗
         document.getElementById('showAgreement').addEventListener('click', (e) => {
             e.preventDefault();
@@ -134,7 +236,6 @@
             document.getElementById('agreementModal').style.display = 'none';
         });
         
-        // 免责声明弹窗
         document.getElementById('showDisclaimer').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('disclaimerModal').style.display = 'flex';
@@ -143,15 +244,75 @@
             document.getElementById('disclaimerModal').style.display = 'none';
         });
         
+        // 发送验证码按钮
+        document.getElementById('sendVerifyBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            const emailError = document.getElementById('emailError');
+            const emailSuccess = document.getElementById('emailSuccess');
+            
+            if (!email) {
+                emailError.textContent = '请输入邮箱地址';
+                return;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                emailError.textContent = '邮箱格式不正确';
+                return;
+            }
+            emailError.textContent = '';
+            
+            if (countdown > 0) {
+                alert(`请等待 ${countdown} 秒后再试`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/send-verify-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    emailSuccess.textContent = '验证码已发送，请查收邮箱';
+                    countdown = 60;
+                    const btn = document.getElementById('sendVerifyBtn');
+                    btn.disabled = true;
+                    countdownTimer = setInterval(() => {
+                        countdown--;
+                        if (countdown <= 0) {
+                            clearInterval(countdownTimer);
+                            btn.disabled = false;
+                            btn.textContent = '发送验证码';
+                        } else {
+                            btn.textContent = `${countdown}秒后重试`;
+                        }
+                    }, 1000);
+                } else {
+                    emailError.textContent = result.error;
+                }
+            } catch (error) {
+                emailError.textContent = '发送失败: ' + error.message;
+            }
+        });
+        
+        // 注册提交
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // 清除错误
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
             
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const email = document.getElementById('email').value.trim();
+            const verifyCode = document.getElementById('verifyCode').value.trim();
+            const captchaInput = document.getElementById('captchaInput').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
             
+            // 验证
             if (username.length < 3) {
                 showMessage('用户名至少3个字符', 'error');
                 return;
@@ -164,19 +325,45 @@
                 showMessage('两次输入的密码不一致', 'error');
                 return;
             }
+            if (!email) {
+                document.getElementById('emailError').textContent = '请输入邮箱';
+                return;
+            }
+            if (!verifyCode) {
+                document.getElementById('codeError').textContent = '请输入验证码';
+                return;
+            }
+            if (captchaInput !== currentCaptcha) {
+                document.getElementById('captchaError').textContent = '验证码错误';
+                refreshCaptcha();
+                return;
+            }
             if (!agreeTerms) {
                 showMessage('请阅读并同意用户协议和免责声明', 'error');
                 return;
             }
             
             try {
+                // 先验证邮箱验证码
+                const verifyResponse = await fetch(`${API_URL}/verify-email-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code: verifyCode })
+                });
+                const verifyResult = await verifyResponse.json();
+                if (!verifyResult.success) {
+                    document.getElementById('codeError').textContent = verifyResult.error;
+                    return;
+                }
+                
+                // 注册
                 const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         username, 
                         password, 
-                        email: email || '',
+                        email,
                         agreedTosVersion: 'v1.0'
                     })
                 });
@@ -194,6 +381,16 @@
                 }
             } catch (error) {
                 showMessage('网络错误，请稍后重试', 'error');
+            }
+        });
+        
+        // 点击弹窗背景关闭
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('agreementModal')) {
+                document.getElementById('agreementModal').style.display = 'none';
+            }
+            if (e.target === document.getElementById('disclaimerModal')) {
+                document.getElementById('disclaimerModal').style.display = 'none';
             }
         });
         
