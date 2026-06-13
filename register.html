@@ -6,42 +6,6 @@
     <title>注册 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
-    <style>
-        .captcha-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .captcha-row input {
-            flex: 1;
-        }
-        .captcha-img {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-family: monospace;
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            cursor: pointer;
-            user-select: none;
-        }
-        .field-note {
-            font-size: 0.7rem;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-        .error {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 4px;
-        }
-        .success {
-            color: #22c55e;
-            font-size: 0.75rem;
-            margin-top: 4px;
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -77,22 +41,25 @@
                     <label>邮箱（可选，用于找回密码）</label>
                     <input type="email" id="email" placeholder="example@domain.com">
                 </div>
-
-                <!-- 人机验证 -->
-                <div class="form-group">
-                    <label>验证码 *</label>
-                    <div class="captcha-row">
-                        <input type="text" id="captchaInput" placeholder="请输入验证码" required>
-                        <div class="captcha-img" id="captchaText" onclick="refreshCaptcha()">------</div>
-                    </div>
-                    <div class="field-note">请输入人机验证码。</div>
-                    <div id="captchaError" class="error"></div>
-                </div>
                 
                 <!-- 协议勾选 -->
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="agreeTerms" required>
                     <label>我已阅读并同意 <a href="#" id="showAgreement">《用户协议》</a> 和 <a href="#" id="showDisclaimer">《免责声明》</a></label>
+                </div>
+
+                <!-- 个人信息收集声明 -->
+                <div class="form-group" style="font-size: 0.7rem; color: #6b7280; margin-top: 8px; border-top: 1px solid #2a2a2a; padding-top: 12px;">
+                    <p><strong>个人信息收集说明</strong></p>
+                    <p>本网站在您注册、登录、发布蓝图、举报内容时，会收集以下信息：</p>
+                    <ul style="margin-left: 20px; margin-top: 4px; margin-bottom: 4px;">
+                        <li>用户名、密码（加密存储，仅用于登录）</li>
+                        <li>邮箱（可选，用于找回密码）</li>
+                        <li>IP地址（用于防止恶意行为及安全追溯）</li>
+                        <li>您发布的蓝图内容（标题、描述、链接）</li>
+                    </ul>
+                    <p>我们不会向任何第三方出售或共享您的个人信息。<br>
+                    详细说明见<a href="#" id="showPrivacy">《个人信息收集声明》</a>。</p>
                 </div>
                 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">注册</button>
@@ -103,58 +70,115 @@
         </div>
     </main>
 
-    <!-- 用户协议弹窗 -->
+    <!-- ========== 用户协议弹窗（完整版） ========== -->
     <div id="agreementModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #3b82f6;">用户协议</h3>
             <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
+            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 接受协议</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">注册或使用本网站即表示您同意本协议的全部条款。</p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">注册或使用本网站即表示您同意本协议的全部条款。如果您不同意，请勿注册或使用本网站。</p>
+            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 网站性质</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。</p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联或背书关系。</p>
+            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 用户承诺</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">您承诺上传的蓝图为您本人创作或已获得授权。</p>
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 违规处理</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">违规内容将被删除，严重者封禁账号。</p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">您承诺并保证：</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（1）上传的蓝图为您本人创作，或已获得原作者的明确书面授权；</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（2）您提供的链接指向的文件不包含恶意代码、病毒、后门程序或其他破坏性内容；</p>
+            <p style="margin-bottom: 12px; color: #9ca3af; margin-left: 20px;">（3）您上传的内容不侵犯任何第三方的知识产权、隐私权或其他合法权益。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 禁止上传的内容</h4>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（1）包含病毒、恶意代码、后门程序的蓝图文件；</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（2）未经原作者许可的付费蓝图、付费模组；</p>
+            <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（3）包含色情、暴力、仇恨言论或非法内容；</p>
+            <p style="margin-bottom: 12px; color: #9ca3af; margin-left: 20px;">（4）纯粹用于广告推广的链接或重复发布的灌水内容。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 违规处理</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">如您违反本协议，本网站有权删除内容、封禁账号、封禁IP，并在必要时向有关部门提供您的注册信息。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 责任归属</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">您对您账号下的所有行为承担全部法律责任。因您上传的内容引发的任何索赔由您独立承担。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 协议的修改</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本协议的权利，继续使用即视为接受修改。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 联系我们</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">侵权投诉 / 个人信息问题：admin@createmechanical.com</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">9. 个人信息收集与保护</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">
+                本网站在您注册、登录、发布蓝图、举报内容时，会收集以下必要信息：<br>
+                - 账号信息：用户名、密码（加密存储，不对外展示）<br>
+                - 联系方式：邮箱（可选）<br>
+                - 技术信息：注册IP、发布IP、操作时间戳<br>
+                - 内容信息：您发布的蓝图标题、描述、链接<br><br>
+                上述信息仅用于：账号安全验证、防止恶意刷量、追溯违规行为、社区内容展示与审核。<br>
+                我们不会向任何第三方出售或共享您的个人信息。<br>
+                您可随时联系管理员注销账号，注销后个人信息将被清除或匿名化处理。
+            </p>
+            
             <button id="closeAgreement" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
 
-    <!-- 免责声明弹窗 -->
+    <!-- ========== 免责声明弹窗（完整版） ========== -->
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
             <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 用户内容免责</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">用户自行上传内容，本网站不对其合法性负责。</p>
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 使用风险</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">下载使用蓝图风险自担。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 关联关系声明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联、合作或背书关系。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 用户内容免责</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站所有蓝图文件、链接及文字描述均由用户自行上传。本网站不对用户上传内容的合法性、安全性、准确性、完整性作任何保证。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 使用风险</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">下载或使用本网站的任何蓝图，风险由您自行承担。因使用本网站内容导致的任何损失，本网站不承担任何赔偿责任。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 技术检测声明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站已采取行业常规的安全检测措施（包括自动化扫描和人工抽查）。但技术的局限性意味着无法保证100%的准确性和完整性。本网站不对检测结果的准确性作任何保证。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 第三方链接</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站可能包含指向第三方网站的链接，本网站不对第三方网站的内容、安全性或可用性承担任何责任。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 侵权通知</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">若您认为本网站存在侵犯您合法权益的内容，请联系：admin@createmechanical.com。本网站在收到有效通知后48小时内核实并处理。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 个人信息说明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站依法收集必要个人信息，详见用户协议第9条。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 声明的修改</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本免责声明的权利，修改后的版本自公布之日起生效。</p>
+            
             <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
+        </div>
+    </div>
+
+    <!-- 个人信息收集声明弹窗（可选） -->
+    <div id="privacyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
+        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 20px; color: #3b82f6;">个人信息收集声明</h3>
+            <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">
+                本网站根据《中华人民共和国个人信息保护法》及本协议第9条，向您告知以下信息：
+            </p>
+            <ul style="margin-left: 20px; margin-bottom: 16px; color: #9ca3af;">
+                <li>收集信息：用户名、加密密码、邮箱（可选）、IP地址、发布内容</li>
+                <li>使用目的：登录验证、安全追溯、防止滥用、社区展示</li>
+                <li>存储方式：加密存储，不对外共享</li>
+                <li>用户权利：可注销账号、要求删除个人信息</li>
+            </ul>
+            <p style="margin-bottom: 12px; color: #9ca3af;">
+                注销账号请联系：admin@createmechanical.com
+            </p>
+            <button id="closePrivacy" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // 人机验证码
-        let currentCaptcha = '';
-        
-        function generateCaptcha() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-            let captcha = '';
-            for (let i = 0; i < 6; i++) {
-                captcha += chars[Math.floor(Math.random() * chars.length)];
-            }
-            return captcha;
-        }
-        
-        function refreshCaptcha() {
-            currentCaptcha = generateCaptcha();
-            const captchaEl = document.getElementById('captchaText');
-            if (captchaEl) captchaEl.innerText = currentCaptcha;
-        }
-        
-        refreshCaptcha();
-        
         // 协议弹窗
         document.getElementById('showAgreement').addEventListener('click', (e) => {
             e.preventDefault();
@@ -164,6 +188,7 @@
             document.getElementById('agreementModal').style.display = 'none';
         });
         
+        // 免责声明弹窗
         document.getElementById('showDisclaimer').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('disclaimerModal').style.display = 'flex';
@@ -172,44 +197,54 @@
             document.getElementById('disclaimerModal').style.display = 'none';
         });
         
+        // 隐私声明弹窗
+        document.getElementById('showPrivacy').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('privacyModal').style.display = 'flex';
+        });
+        document.getElementById('closePrivacy').addEventListener('click', () => {
+            document.getElementById('privacyModal').style.display = 'none';
+        });
+        
+        // 点击背景关闭
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('agreementModal')) {
+                document.getElementById('agreementModal').style.display = 'none';
+            }
+            if (e.target === document.getElementById('disclaimerModal')) {
+                document.getElementById('disclaimerModal').style.display = 'none';
+            }
+            if (e.target === document.getElementById('privacyModal')) {
+                document.getElementById('privacyModal').style.display = 'none';
+            }
+        });
+        
         // 注册提交
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            document.querySelectorAll('.error').forEach(el => el.textContent = '');
             
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const email = document.getElementById('email').value.trim();
-            const captchaInput = document.getElementById('captchaInput').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
-            
-            let hasError = false;
             
             if (username.length < 3) {
                 showMessage('用户名至少3个字符', 'error');
-                hasError = true;
+                return;
             }
             if (password.length < 6) {
                 showMessage('密码至少6个字符', 'error');
-                hasError = true;
+                return;
             }
             if (password !== confirmPassword) {
                 showMessage('两次输入的密码不一致', 'error');
-                hasError = true;
-            }
-            if (captchaInput !== currentCaptcha) {
-                document.getElementById('captchaError').textContent = '验证码错误';
-                refreshCaptcha();
-                hasError = true;
+                return;
             }
             if (!agreeTerms) {
                 showMessage('请阅读并同意用户协议和免责声明', 'error');
-                hasError = true;
+                return;
             }
-            
-            if (hasError) return;
             
             try {
                 const response = await fetch(`${API_URL}/register`, {
@@ -235,16 +270,7 @@
                     showMessage(result.error, 'error');
                 }
             } catch (error) {
-                showMessage('网络错误: ' + error.message, 'error');
-            }
-        });
-        
-        window.addEventListener('click', (e) => {
-            if (e.target === document.getElementById('agreementModal')) {
-                document.getElementById('agreementModal').style.display = 'none';
-            }
-            if (e.target === document.getElementById('disclaimerModal')) {
-                document.getElementById('disclaimerModal').style.display = 'none';
+                showMessage('网络错误，请稍后重试', 'error');
             }
         });
         
