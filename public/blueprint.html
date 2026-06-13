@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蓝图详情 - 机械动力蓝图社区</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            Create<span>Mechanical</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">首页</a>
+            <a href="publish.html" class="nav-link">发布蓝图</a>
+            <a href="profile.html" class="nav-link">我的发布</a>
+            <a href="login.html" class="btn btn-outline">登录</a>
+            <a href="register.html" class="btn btn-primary">注册</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="detailContainer">
+            <div class="loading">加载中...</div>
+        </div>
+    </main>
+
+    <!-- 举报弹窗 -->
+    <div id="reportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%;">
+            <h3 style="margin-bottom: 16px;">举报蓝图</h3>
+            <textarea id="reportReason" rows="4" placeholder="请填写举报原因..." style="width: 100%; padding: 12px; background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; color: white; margin-bottom: 16px;"></textarea>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeReportModal()">取消</button>
+                <button class="btn btn-danger" onclick="submitReport()">提交举报</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentBlueprint = null;
+        
+        async function loadBlueprint() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            
+            if (!id) {
+                document.getElementById('detailContainer').innerHTML = '<div class="empty">无效的蓝图ID</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/blueprints/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentBlueprint = result.data;
+                    renderBlueprint();
+                } else {
+                    document.getElementById('detailContainer').innerHTML = '<div class="empty">蓝图不存在</div>';
+                }
+            } catch (error) {
+                document.getElementById('detailContainer').innerHTML = '<div class="empty">加载失败</div>';
+            }
+        }
+        
+        function renderBlueprint() {
+            const bp = currentBlueprint;
+            const container = document.getElementById('detailContainer');
+            const isOwner = isLoggedIn() && localStorage.getItem('username') === bp.username;
+            
+            container.innerHTML = `
+                <div class="detail-card">
+                    <h1 class="detail-title">${escapeHtml(bp.title)}</h1>
+                    <div class="detail-meta">
+                        <span>发布者: ${escapeHtml(bp.username)}</span>
+                        <span>${formatDate(bp.created_at)}</span>
+                        <span>👁️ ${bp.views || 0}</span>
+                        <span>❤️ ${bp.likes || 0}</span>
+                    </div>
+                    <div class="detail-description">
+                        <h3>描述</h3>
+                        <p>${escapeHtml(bp.description || '暂无描述')}</p>
+                    </div>
+                    <div class="detail-link">
+                        <h3>下载链接</h3>
+                        <a href="${escapeHtml(bp.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(bp.link)}</a>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="likeBlueprint()">❤️ 点赞</button>
+                        <button class="btn btn-outline" onclick="openReportModal()">🚩 举报</button>
+                        ${isOwner ? `<button class="btn btn-danger" onclick="deleteBlueprint()">删除</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function likeBlueprint() {
+            try {
+                const response = await fetch(`${API_URL}/blueprints/${currentBlueprint.id}/like`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentBlueprint.likes = (currentBlueprint.likes || 0) + 1;
+                    renderBlueprint();
+                    showMessage('点赞成功', 'success');
+                }
+            } catch (error) {
+                showMessage('操作失败', 'error');
+            }
+        }
+        
+        function openReportModal() {
+            document.getElementById('reportModal').style.display = 'flex';
+        }
+        
+        function closeReportModal() {
+            document.getElementById('reportModal').style.display = 'none';
+            document.getElementById('reportReason').value = '';
+        }
+        
+        async function submitReport() {
+            const reason = document.getElementById('reportReason').value.trim();
+            if (!reason) {
+                showMessage('请填写举报原因', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/blueprints/${currentBlueprint.id}/report`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('举报已提交，感谢反馈', 'success');
+                    closeReportModal();
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('提交失败', 'error');
+            }
+        }
+        
+        async function deleteBlueprint() {
+            if (!confirm('确定删除这个蓝图吗？')) return;
+            
+            try {
+                const response = await authFetch(`/admin/blueprints/${currentBlueprint.id}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('删除成功', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('删除失败', 'error');
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        updateNavbar();
+        loadBlueprint();
+    </script>
+</body>
+</html>

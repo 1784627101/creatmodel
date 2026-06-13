@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的发布 - 机械动力蓝图社区</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            Create<span>Mechanical</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">首页</a>
+            <a href="publish.html" class="nav-link">发布蓝图</a>
+            <a href="profile.html" class="nav-link">我的发布</a>
+            <a href="login.html" class="btn btn-outline">登录</a>
+            <a href="register.html" class="btn btn-primary">注册</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 style="margin-bottom: 24px;">我的发布</h1>
+        
+        <div id="profileWarning" style="display: none; background: #2a2a2a; padding: 32px; border-radius: 16px; text-align: center;">
+            <p style="margin-bottom: 16px;">请先登录查看自己的发布</p>
+            <a href="login.html" class="btn btn-primary">立即登录</a>
+        </div>
+        
+        <div id="blueprintGrid" class="blueprint-grid" style="display: none;"></div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadMyBlueprints() {
+            const loggedIn = isLoggedIn();
+            const warning = document.getElementById('profileWarning');
+            const grid = document.getElementById('blueprintGrid');
+            
+            if (!loggedIn) {
+                warning.style.display = 'block';
+                grid.style.display = 'none';
+                return;
+            }
+            
+            warning.style.display = 'none';
+            grid.style.display = 'grid';
+            grid.innerHTML = '<div class="loading">加载中...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/blueprints`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const myBlueprints = result.data.filter(bp => bp.username === localStorage.getItem('username'));
+                    
+                    if (myBlueprints.length > 0) {
+                        grid.innerHTML = '';
+                        myBlueprints.forEach(bp => {
+                            grid.innerHTML += `
+                                <div class="blueprint-card">
+                                    <div class="blueprint-title">${escapeHtml(bp.title)}</div>
+                                    <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
+                                    <div class="blueprint-meta">
+                                        <span>${formatDate(bp.created_at)}</span>
+                                    </div>
+                                    <div class="blueprint-stats">
+                                        <span>👁️ ${bp.views || 0}</span>
+                                        <span>❤️ ${bp.likes || 0}</span>
+                                    </div>
+                                    <a href="blueprint.html?id=${bp.id}" class="blueprint-link">查看详情 →</a>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        grid.innerHTML = '<div class="empty">你还没有发布过蓝图，去发布第一个吧！</div>';
+                    }
+                }
+            } catch (error) {
+                grid.innerHTML = '<div class="empty">加载失败</div>';
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        updateNavbar();
+        loadMyBlueprints();
+    </script>
+</body>
+</html>
