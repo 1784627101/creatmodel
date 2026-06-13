@@ -78,9 +78,9 @@
                     <h1 class="detail-title">${escapeHtml(bp.title)}</h1>
                     <div class="detail-meta">
                         <span>发布者: ${escapeHtml(bp.username)}</span>
-                        <span>${formatDate(bp.upload_time)}</span>
-                        <span>👁️ ${bp.views || 0}</span>
-                        <span>❤️ ${bp.likes || 0}</span>
+                        <span>${formatDate(bp.upload_time || bp.created_at)}</span>
+                        <span>浏览 ${bp.views || 0}</span>
+                        <span>点赞 ${bp.likes || 0}</span>
                     </div>
                     <div class="detail-description">
                         <h3>描述</h3>
@@ -92,13 +92,13 @@
                             `<a href="${escapeHtml(bp.original_link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block;">点击下载</a>
                              <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280; word-break: break-all;">链接：${escapeHtml(bp.original_link)}</p>` : 
                             `<p style="color: #f97316; padding: 12px; background: #2a2a2a; border-radius: 8px;">
-                                ⚠️ 请先 <a href="login.html" style="color: #3b82f6;">登录</a> 后查看下载链接
+                                请先 <a href="login.html" style="color: #3b82f6;">登录</a> 后查看下载链接
                              </p>`
                         }
                     </div>
                     <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="likeBlueprint()">❤️ 点赞</button>
-                        ${loggedIn ? `<button class="btn btn-outline" onclick="openReportModal()">🚩 举报</button>` : ''}
+                        <button class="btn btn-primary" onclick="likeBlueprint()">点赞</button>
+                        ${loggedIn ? `<button class="btn btn-outline" onclick="openReportModal()">举报</button>` : ''}
                         ${isOwner ? `<button class="btn btn-danger" onclick="deleteBlueprint()">删除</button>` : ''}
                     </div>
                 </div>
@@ -167,7 +167,8 @@
             if (!confirm('确定删除这个蓝图吗？此操作不可恢复')) return;
             
             try {
-                const response = await authFetch(`/admin/blueprints/${currentBlueprint.id}`, {
+                // 使用正确的删除接口路径
+                const response = await authFetch(`/blueprints/${currentBlueprint.id}`, {
                     method: 'DELETE'
                 });
                 const result = await response.json();
@@ -176,12 +177,12 @@
                     showMessage('删除成功', 'success');
                     setTimeout(() => {
                         window.location.href = 'index.html';
-                    }, 1000);
+                    }, 1500);
                 } else {
                     showMessage(result.error, 'error');
                 }
             } catch (error) {
-                showMessage('删除失败', 'error');
+                showMessage('删除失败: ' + error.message, 'error');
             }
         }
         
