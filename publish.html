@@ -47,22 +47,44 @@
                 </div>
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="disclaimer" required>
-                    <label>我已阅读并同意 <a href="#" id="showDisclaimer">免责声明</a>，承诺分享的内容不侵犯他人权益</label>
+                    <label>我已阅读并同意 <a href="#" id="showDisclaimer">《免责声明》</a>，承诺分享的内容不侵犯他人权益</label>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">发布蓝图</button>
             </form>
         </div>
     </main>
 
-    <!-- 免责声明弹窗 -->
-    <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 500px; margin: 20px;">
-            <h3 style="margin-bottom: 16px;">免责声明</h3>
-            <p style="margin-bottom: 12px; color: #9ca3af;">1. 本社区仅提供蓝图分享平台，所有蓝图内容由用户自行上传。</p>
-            <p style="margin-bottom: 12px; color: #9ca3af;">2. 用户应确保分享的蓝图不侵犯任何第三方权益。</p>
-            <p style="margin-bottom: 12px; color: #9ca3af;">3. 如发现侵权或违规内容，请联系管理员处理。</p>
-            <p style="margin-bottom: 12px; color: #9ca3af;">4. 下载使用他人蓝图请自行承担风险。</p>
-            <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 16px;">我已知晓</button>
+    <!-- 免责声明弹窗（完整版） -->
+    <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
+        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
+            <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 关联关系声明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联、合作或背书关系。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 用户内容免责</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站所有蓝图文件、链接及文字描述均由用户自行上传。本网站不对用户上传内容的合法性、安全性、准确性、完整性作任何保证。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 使用风险</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">下载或使用本网站的任何蓝图，风险由您自行承担。因使用本网站内容导致的任何损失，本网站不承担任何赔偿责任。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 技术检测声明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站已采取行业常规的安全检测措施（包括自动化扫描和人工抽查）。但技术的局限性意味着无法保证100%的准确性和完整性。本网站不对检测结果的准确性作任何保证。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 第三方链接</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站可能包含指向第三方网站的链接，本网站不对第三方网站的内容、安全性或可用性承担任何责任。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 侵权通知</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">若您认为本网站存在侵犯您合法权益的内容，请联系：admin@createmechanical.com。本网站在收到有效通知后48小时内核实并处理。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 个人信息说明</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站依法收集必要个人信息，详见用户协议第9条。</p>
+            
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 声明的修改</h4>
+            <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本免责声明的权利，修改后的版本自公布之日起生效。</p>
+            
+            <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
 
@@ -94,11 +116,17 @@
             document.getElementById('disclaimerModal').style.display = 'none';
         });
         
+        // 点击背景关闭
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('disclaimerModal')) {
+                document.getElementById('disclaimerModal').style.display = 'none';
+            }
+        });
+        
         // 发布表单提交
         document.getElementById('publishForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // 防重复提交
             if (isSubmitting) {
                 showMessage('正在发布中，请勿重复点击', 'error');
                 return;
@@ -142,7 +170,6 @@
                 
                 if (result.success) {
                     showMessage('发布成功！等待管理员审核', 'success');
-                    // 跳转到「我的发布」页面，让用户看到待审核状态
                     setTimeout(() => {
                         window.location.href = 'profile.html';
                     }, 1500);
