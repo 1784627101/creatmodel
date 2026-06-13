@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的发布 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background: #f97316;
+            color: white;
+        }
+        .status-active {
+            background: #22c55e;
+            color: white;
+        }
+        .status-reported {
+            background: #ef4444;
+            color: white;
+        }
+        .status-deleted {
+            background: #6b7280;
+            color: white;
+        }
+        .blueprint-status {
+            margin-top: 8px;
+            font-size: 0.75rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -15,6 +44,8 @@
             <a href="index.html" class="nav-link">首页</a>
             <a href="publish.html" class="nav-link">发布蓝图</a>
             <a href="profile.html" class="nav-link">我的发布</a>
+            <a href="login.html" class="btn btn-outline">登录</a>
+            <a href="register.html" class="btn btn-primary">注册</a>
         </div>
     </nav>
 
@@ -55,29 +86,67 @@
                     
                     if (myBlueprints.length > 0) {
                         grid.innerHTML = '';
-                        myBlueprints.forEach(bp => {
+                        for (const bp of myBlueprints) {
+                            let statusClass = '';
+                            let statusText = '';
+                            switch (bp.status) {
+                                case 'pending':
+                                    statusClass = 'status-pending';
+                                    statusText = '审核中';
+                                    break;
+                                case 'active':
+                                    statusClass = 'status-active';
+                                    statusText = '已公开';
+                                    break;
+                                case 'reported':
+                                    statusClass = 'status-reported';
+                                    statusText = '被举报';
+                                    break;
+                                case 'deleted':
+                                    statusClass = 'status-deleted';
+                                    statusText = '已删除';
+                                    break;
+                                default:
+                                    statusClass = 'status-pending';
+                                    statusText = '审核中';
+                            }
+                            
                             grid.innerHTML += `
                                 <div class="blueprint-card">
                                     <div class="blueprint-title">${escapeHtml(bp.title)}</div>
                                     <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
                                     <div class="blueprint-meta">
                                         <span>${formatDate(bp.created_at)}</span>
+                                        <span>浏览 ${bp.views || 0}</span>
+                                        <span>点赞 ${bp.likes || 0}</span>
                                     </div>
-                                    <div class="blueprint-stats">
-                                        <span>👁️ ${bp.views || 0}</span>
-                                        <span>❤️ ${bp.likes || 0}</span>
+                                    <div class="blueprint-status">
+                                        状态: <span class="status-badge ${statusClass}">${statusText}</span>
                                     </div>
                                     <a href="blueprint.html?id=${bp.id}" class="blueprint-link">查看详情 →</a>
                                 </div>
                             `;
-                        });
+                        }
                     } else {
-                        grid.innerHTML = '<div class="empty">你还没有发布过蓝图，去发布第一个吧！</div>';
+                        grid.innerHTML = '<div class="empty">你还没有发布过蓝图，去发布第一个吧</div>';
                     }
+                } else {
+                    grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
                 }
             } catch (error) {
-                grid.innerHTML = '<div class="empty">加载失败</div>';
+                console.error('加载失败:', error);
+                grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
             }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
         
         updateNavbar();
