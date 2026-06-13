@@ -77,7 +77,7 @@
                     <h1 class="detail-title">${escapeHtml(bp.title)}</h1>
                     <div class="detail-meta">
                         <span>发布者: ${escapeHtml(bp.username)}</span>
-                        <span>${formatDate(bp.created_at)}</span>
+                        <span>${formatDate(bp.upload_time)}</span>
                         <span>👁️ ${bp.views || 0}</span>
                         <span>❤️ ${bp.likes || 0}</span>
                     </div>
@@ -184,7 +184,6 @@
             }
         }
         
-        // 点击弹窗背景关闭
         window.addEventListener('click', (e) => {
             const modal = document.getElementById('reportModal');
             if (e.target === modal) {
