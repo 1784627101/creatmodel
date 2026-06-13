@@ -82,7 +82,12 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    const myBlueprints = result.data.filter(bp => bp.username === localStorage.getItem('username'));
+                    // 获取所有蓝图（包括审核中的）
+                    const allResponse = await fetch(`${API_URL}/blueprints?all=true`);
+                    const allResult = await allResponse.json();
+                    const allBlueprints = allResult.success ? allResult.data : result.data;
+                    
+                    const myBlueprints = allBlueprints.filter(bp => bp.username === localStorage.getItem('username'));
                     
                     if (myBlueprints.length > 0) {
                         grid.innerHTML = '';
@@ -116,7 +121,7 @@
                                     <div class="blueprint-title">${escapeHtml(bp.title)}</div>
                                     <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
                                     <div class="blueprint-meta">
-                                        <span>${formatDate(bp.created_at)}</span>
+                                        <span>${formatDate(bp.upload_time || bp.created_at)}</span>
                                         <span>浏览 ${bp.views || 0}</span>
                                         <span>点赞 ${bp.likes || 0}</span>
                                     </div>
@@ -137,16 +142,6 @@
                 console.error('加载失败:', error);
                 grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
             }
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
         
         updateNavbar();
