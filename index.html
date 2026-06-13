@@ -13,8 +13,8 @@
         </div>
         <div class="nav-links">
             <a href="index.html" class="nav-link">首页</a>
-            <a href="login.html" class="btn btn-outline">登录</a>
-            <a href="register.html" class="btn btn-primary">注册</a>
+            <a href="publish.html" class="nav-link">发布蓝图</a>
+            <a href="profile.html" class="nav-link">我的发布</a>
         </div>
     </nav>
 
@@ -90,16 +90,6 @@
             currentPage = page;
             loadBlueprints(page);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
 
         updateNavbar();

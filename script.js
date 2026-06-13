@@ -1,7 +1,6 @@
-// API 地址
-const API_URL = 'https://你的railway域名/api';
+// API 地址 - 改成你的 Railway 后端地址
+const API_URL = 'energetic-presence-production.up.railway.app/api';
 
-// 显示消息
 function showMessage(text, type = 'success') {
     const msg = document.createElement('div');
     msg.className = `message ${type}`;
@@ -10,12 +9,10 @@ function showMessage(text, type = 'success') {
     setTimeout(() => msg.remove(), 3000);
 }
 
-// 获取 token
 function getToken() {
     return localStorage.getItem('token');
 }
 
-// 获取当前用户
 function getCurrentUser() {
     return {
         token: localStorage.getItem('token'),
@@ -23,12 +20,10 @@ function getCurrentUser() {
     };
 }
 
-// 检查是否登录
 function isLoggedIn() {
     return !!localStorage.getItem('token');
 }
 
-// 退出登录
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -38,7 +33,6 @@ function logout() {
     }, 1000);
 }
 
-// 带认证的请求
 async function authFetch(url, options = {}) {
     const token = getToken();
     const headers = {
@@ -64,13 +58,21 @@ async function authFetch(url, options = {}) {
     return response;
 }
 
-// 格式化时间
 function formatDate(dateString) {
     const date = new Date(dateString);
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-// 更新导航栏显示
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
 function updateNavbar() {
     const loggedIn = isLoggedIn();
     const username = localStorage.getItem('username');
@@ -82,12 +84,14 @@ function updateNavbar() {
                 <a href="index.html" class="nav-link">首页</a>
                 <a href="publish.html" class="nav-link">发布蓝图</a>
                 <a href="profile.html" class="nav-link">我的发布</a>
-                <span class="nav-link" style="color:#3b82f6">${username}</span>
+                <span class="nav-link" style="color:#3b82f6">${escapeHtml(username)}</span>
                 <button class="btn btn-outline" onclick="logout()">退出</button>
             `;
         } else {
             navLinks.innerHTML = `
                 <a href="index.html" class="nav-link">首页</a>
+                <a href="publish.html" class="nav-link">发布蓝图</a>
+                <a href="profile.html" class="nav-link">我的发布</a>
                 <a href="login.html" class="btn btn-outline">登录</a>
                 <a href="register.html" class="btn btn-primary">注册</a>
             `;

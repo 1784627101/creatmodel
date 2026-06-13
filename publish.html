@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布蓝图 - 机械动力蓝图社区</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            Create<span>Mechanical</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">首页</a>
+            <a href="publish.html" class="nav-link">发布蓝图</a>
+            <a href="profile.html" class="nav-link">我的发布</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="form-card">
+            <h2 style="margin-bottom: 24px; text-align: center;">分享你的蓝图</h2>
+            
+            <div id="loginWarning" style="display: none; background: #2a2a2a; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+                <p style="margin-bottom: 12px;">请先登录才能发布蓝图</p>
+                <a href="login.html" class="btn btn-primary">立即登录</a>
+                <a href="register.html" class="btn btn-outline" style="margin-left: 12px;">注册账号</a>
+            </div>
+            
+            <form id="publishForm" style="display: none;">
+                <div class="form-group">
+                    <label>标题 *</label>
+                    <input type="text" id="title" placeholder="例如：全自动熔炉阵列" maxlength="200" required>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="description" rows="4" placeholder="描述你的蓝图功能、使用说明等"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>下载链接 *</label>
+                    <input type="url" id="link" placeholder="https://..." required>
+                    <small style="color: #6b7280;">只支持 https 链接</small>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="disclaimer" required>
+                    <label>我已阅读并同意 <a href="#" id="showDisclaimer">免责声明</a>，承诺分享的内容不侵犯他人权益</label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">发布蓝图</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- 免责声明弹窗 -->
+    <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 500px; margin: 20px;">
+            <h3 style="margin-bottom: 16px;">免责声明</h3>
+            <p style="margin-bottom: 12px; color: #9ca3af;">1. 本社区仅提供蓝图分享平台，所有蓝图内容由用户自行上传。</p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">2. 用户应确保分享的蓝图不侵犯任何第三方权益。</p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">3. 如发现侵权或违规内容，请联系管理员处理。</p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">4. 下载使用他人蓝图请自行承担风险。</p>
+            <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 16px;">我已知晓</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function checkLogin() {
+            const loggedIn = isLoggedIn();
+            const warning = document.getElementById('loginWarning');
+            const form = document.getElementById('publishForm');
+            
+            if (loggedIn) {
+                warning.style.display = 'none';
+                form.style.display = 'block';
+            } else {
+                warning.style.display = 'block';
+                form.style.display = 'none';
+            }
+        }
+        
+        document.getElementById('showDisclaimer').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('disclaimerModal').style.display = 'flex';
+        });
+        
+        document.getElementById('closeDisclaimer').addEventListener('click', () => {
+            document.getElementById('disclaimerModal').style.display = 'none';
+        });
+        
+        document.getElementById('publishForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const link = document.getElementById('link').value.trim();
+            const disclaimer = document.getElementById('disclaimer').checked;
+            
+            if (!title) {
+                showMessage('请输入标题', 'error');
+                return;
+            }
+            if (!link) {
+                showMessage('请输入链接', 'error');
+                return;
+            }
+            if (!link.startsWith('https://')) {
+                showMessage('链接必须是 https 协议', 'error');
+                return;
+            }
+            if (!disclaimer) {
+                showMessage('请阅读并同意免责声明', 'error');
+                return;
+            }
+            
+            try {
+                const response = await authFetch('/blueprints', {
+                    method: 'POST',
+                    body: JSON.stringify({ title, description, link })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('发布成功！', 'success');
+                    setTimeout(() => {
+                        window.location.href = `blueprint.html?id=${result.data.id}`;
+                    }, 1500);
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('发布失败: ' + error.message, 'error');
+            }
+        });
+        
+        updateNavbar();
+        checkLogin();
+    </script>
+</body>
+</html>
