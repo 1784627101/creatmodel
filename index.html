@@ -9,10 +9,93 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
     <style>
+        .main-layout {
+            display: flex;
+            gap: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .content {
+            flex: 3;
+        }
+        .sidebar {
+            flex: 1;
+            min-width: 260px;
+        }
+        .sidebar-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .sidebar-card h3 {
+            color: #38bdf8;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #334155;
+        }
+        .hot-item {
+            display: flex;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #2a3a5a;
+        }
+        .hot-rank {
+            width: 28px;
+            height: 28px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        .hot-rank.top1 { background: #f97316; color: white; }
+        .hot-rank.top2 { background: #3b82f6; color: white; }
+        .hot-rank.top3 { background: #22c55e; color: white; }
+        .hot-info {
+            flex: 1;
+        }
+        .hot-title {
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .hot-meta {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .friend-link {
+            display: block;
+            padding: 8px 0;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+            border-bottom: 1px solid #2a3a5a;
+        }
+        .friend-link:hover {
+            color: #38bdf8;
+        }
+        .announcement {
+            font-size: 0.85rem;
+            color: #cbd5e6;
+            line-height: 1.5;
+        }
+        .announcement-date {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
         .search-bar {
             display: flex;
             gap: 12px;
-            margin: 24px 0 20px;
+            margin: 0 0 20px;
             max-width: 500px;
         }
         .search-input {
@@ -75,6 +158,14 @@
             color: #6b7280;
             margin-bottom: 16px;
         }
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                order: -1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -91,63 +182,103 @@
         </div>
     </nav>
 
-    <main class="container">
-        <h1 style="margin-bottom: 8px;">机械动力蓝图分享</h1>
-        <p style="color: #9ca3af; margin-bottom: 16px;">发现和分享机械动力模组的优秀蓝图</p>
+    <div class="main-layout">
+        <!-- 主内容区 -->
+        <div class="content">
+            <h1 style="margin-bottom: 8px;">机械动力蓝图分享</h1>
+            <p style="color: #9ca3af; margin-bottom: 16px;">发现和分享机械动力模组的优秀蓝图</p>
 
-        <!-- 搜索栏 -->
-        <div class="search-bar">
-            <input type="text" id="searchInput" class="search-input" placeholder="搜索蓝图标题或描述..." autocomplete="off">
-            <button id="searchBtn" class="btn btn-primary">搜索</button>
-            <button id="clearSearchBtn" class="btn btn-outline" style="display: none;">清空</button>
-        </div>
-
-        <!-- 版本筛选栏 -->
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label>MC版本：</label>
-                <select id="filterMcVersion" class="filter-select">
-                    <option value="">全部</option>
-                    <option value="1.21.1">1.21.1</option>
-                    <option value="1.20.1">1.20.1</option>
-                    <option value="1.19.2">1.19.2</option>
-                    <option value="1.18.2">1.18.2</option>
-                    <option value="1.16.5">1.16.5</option>
-                </select>
+            <!-- 搜索栏 -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="搜索蓝图标题或描述..." autocomplete="off">
+                <button id="searchBtn" class="btn btn-primary">搜索</button>
+                <button id="clearSearchBtn" class="btn btn-outline" style="display: none;">清空</button>
             </div>
-            <div class="filter-group">
-                <label>Create版本：</label>
-                <select id="filterCreateVersion" class="filter-select">
-                    <option value="">全部</option>
-                    <option value="6.0.10">6.0.10</option>
-                    <option value="6.0.9">6.0.9</option>
-                    <option value="6.0.8">6.0.8</option>
-                    <option value="6.0.7">6.0.7</option>
-                    <option value="6.0.6">6.0.6</option>
-                    <option value="6.0.5">6.0.5</option>
-                    <option value="6.0.4">6.0.4</option>
-                    <option value="6.0.3">6.0.3</option>
-                    <option value="6.0.2">6.0.2</option>
-                    <option value="6.0.1">6.0.1</option>
-                    <option value="6.0.0">6.0.0</option>
-                    <option value="0.5.1">0.5.1</option>
-                </select>
+
+            <!-- 版本筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>MC版本：</label>
+                    <select id="filterMcVersion" class="filter-select">
+                        <option value="">全部</option>
+                        <option value="1.21.1">1.21.1</option>
+                        <option value="1.20.1">1.20.1</option>
+                        <option value="1.19.2">1.19.2</option>
+                        <option value="1.18.2">1.18.2</option>
+                        <option value="1.16.5">1.16.5</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Create版本：</label>
+                    <select id="filterCreateVersion" class="filter-select">
+                        <option value="">全部</option>
+                        <option value="6.0.10">6.0.10</option>
+                        <option value="6.0.9">6.0.9</option>
+                        <option value="6.0.8">6.0.8</option>
+                        <option value="6.0.7">6.0.7</option>
+                        <option value="6.0.6">6.0.6</option>
+                        <option value="6.0.5">6.0.5</option>
+                        <option value="6.0.4">6.0.4</option>
+                        <option value="6.0.3">6.0.3</option>
+                        <option value="6.0.2">6.0.2</option>
+                        <option value="6.0.1">6.0.1</option>
+                        <option value="6.0.0">6.0.0</option>
+                        <option value="0.5.1">0.5.1</option>
+                    </select>
+                </div>
+                <button id="filterBtn" class="btn btn-primary">筛选</button>
+                <button id="clearFilterBtn" class="btn btn-outline">清除</button>
             </div>
-            <button id="filterBtn" class="btn btn-primary">筛选</button>
-            <button id="clearFilterBtn" class="btn btn-outline">清除</button>
+
+            <!-- 搜索结果提示 -->
+            <div id="searchInfo" class="search-info" style="display: none;"></div>
+
+            <!-- 蓝图列表 -->
+            <div id="blueprintGrid" class="blueprint-grid">
+                <div class="loading">加载中...</div>
+            </div>
+
+            <!-- 分页 -->
+            <div id="pagination" class="pagination"></div>
         </div>
 
-        <!-- 搜索结果提示 -->
-        <div id="searchInfo" class="search-info" style="display: none;"></div>
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <!-- 热门榜 -->
+            <div class="sidebar-card">
+                <h3>🔥 热门榜</h3>
+                <div id="hotList">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
 
-        <!-- 蓝图列表 -->
-        <div id="blueprintGrid" class="blueprint-grid">
-            <div class="loading">加载中...</div>
+            <!-- 友情链接 -->
+            <div class="sidebar-card">
+                <h3>🔗 友情链接</h3>
+                <div id="friendLinks">
+                    <a href="https://www.mcbbs.net/" target="_blank" class="friend-link">MCBBS 中文论坛</a>
+                    <a href="https://www.bilibili.com/" target="_blank" class="friend-link">Bilibili 哔哩哔哩</a>
+                    <a href="https://www.curseforge.com/minecraft/mc-mods/create" target="_blank" class="friend-link">CurseForge - Create</a>
+                    <a href="https://github.com/Creators-of-Create/Create" target="_blank" class="friend-link">GitHub - Create Mod</a>
+                </div>
+            </div>
+
+            <!-- 公告栏 -->
+            <div class="sidebar-card">
+                <h3>📢 公告</h3>
+                <div id="announcement">
+                    <div class="announcement-date">2026年6月15日</div>
+                    <div class="announcement">
+                        欢迎来到机械动力蓝图分享社区！<br><br>
+                        📌 发布蓝图请先登录<br>
+                        📌 每个IP每天可发布3个蓝图<br>
+                        📌 所有链接会经过安全检测<br>
+                        📌 有问题请联系：creatmodel@163.com
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- 分页 -->
-        <div id="pagination" class="pagination"></div>
-    </main>
+    </div>
 
     <script src="script.js"></script>
     <script>
@@ -239,6 +370,39 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // 加载热门榜
+        async function loadHotList() {
+            const container = document.getElementById('hotList');
+            try {
+                const response = await fetch(`${API_URL}/blueprints/hot`);
+                const result = await response.json();
+                if (result.success && result.data.length > 0) {
+                    let html = '';
+                    result.data.forEach((item, index) => {
+                        let rankClass = '';
+                        if (index === 0) rankClass = 'top1';
+                        else if (index === 1) rankClass = 'top2';
+                        else if (index === 2) rankClass = 'top3';
+                        
+                        html += `
+                            <a href="blueprint.html?id=${item.id}" class="hot-item" style="text-decoration: none;">
+                                <div class="hot-rank ${rankClass}">${index + 1}</div>
+                                <div class="hot-info">
+                                    <div class="hot-title">${escapeHtml(item.title)}</div>
+                                    <div class="hot-meta">❤️ ${item.likes || 0} · ${escapeHtml(item.username)}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="loading">暂无数据</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="loading">加载失败</div>';
+            }
+        }
+
         // 搜索
         document.getElementById('searchBtn').addEventListener('click', () => {
             const keyword = document.getElementById('searchInput').value.trim();
@@ -308,6 +472,7 @@
 
         updateNavbar();
         loadBlueprints();
+        loadHotList();
     </script>
 </body>
 </html>
