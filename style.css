@@ -20,6 +20,7 @@ a:hover {
     text-decoration: underline;
 }
 
+/* 导航栏 */
 .navbar {
     background: #1a1a1a;
     border-bottom: 1px solid #2a2a2a;
@@ -61,6 +62,7 @@ a:hover {
     text-decoration: none;
 }
 
+/* 按钮 */
 .btn {
     padding: 8px 20px;
     border-radius: 40px;
@@ -109,19 +111,87 @@ a:hover {
     background: #3a3a3a;
 }
 
+/* 主布局 - 响应式宽屏 */
+.main-layout {
+    display: flex;
+    gap: 32px;
+    width: 100%;
+    padding: 0 24px;
+    max-width: 100%;
+}
+
+@media (min-width: 1600px) {
+    .main-layout {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0;
+    }
+}
+
+@media (min-width: 1920px) {
+    .main-layout {
+        max-width: 1600px;
+    }
+}
+
+/* 内容区 */
+.content {
+    flex: 3;
+    min-width: 0;
+}
+
+/* 侧边栏 */
+.sidebar {
+    flex: 1;
+    min-width: 260px;
+}
+
+.sidebar-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.sidebar-card h3 {
+    color: #38bdf8;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #334155;
+}
+
+/* 容器 */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
     padding: 40px 24px;
 }
 
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 0;
+    }
+}
+
+/* 蓝图网格 - 响应式 */
 .blueprint-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 24px;
     margin-top: 24px;
 }
 
+@media (min-width: 1600px) {
+    .blueprint-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 28px;
+    }
+}
+
+/* 蓝图卡片 */
 .blueprint-card {
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
@@ -135,17 +205,26 @@ a:hover {
     border-color: #3b82f6;
 }
 
+.blueprint-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
 .blueprint-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 8px;
     color: white;
+    line-height: 1.4;
 }
 
 .blueprint-description {
     font-size: 0.85rem;
     color: #9ca3af;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -155,16 +234,24 @@ a:hover {
 .blueprint-meta {
     display: flex;
     gap: 16px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #6b7280;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.blueprint-versions {
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin: 8px 0;
 }
 
 .blueprint-stats {
     display: flex;
     gap: 16px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #6b7280;
+    margin-top: 8px;
 }
 
 .blueprint-link {
@@ -173,12 +260,90 @@ a:hover {
     font-size: 0.8rem;
 }
 
+/* 热门榜 */
+.hot-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #2a3a5a;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.hot-item:hover {
+    background: #0f172a;
+    margin: 0 -8px;
+    padding: 10px 8px;
+    border-radius: 8px;
+}
+
+.hot-rank {
+    width: 28px;
+    height: 28px;
+    background: #0f172a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.hot-rank.top1 { background: #f97316; color: white; }
+.hot-rank.top2 { background: #3b82f6; color: white; }
+.hot-rank.top3 { background: #22c55e; color: white; }
+
+.hot-info {
+    flex: 1;
+}
+
+.hot-title {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.hot-meta {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+/* 友情链接 */
+.friend-link {
+    display: block;
+    padding: 8px 0;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s;
+    border-bottom: 1px solid #2a3a5a;
+}
+
+.friend-link:hover {
+    color: #38bdf8;
+}
+
+/* 公告 */
+.announcement {
+    font-size: 0.85rem;
+    color: #cbd5e6;
+    line-height: 1.5;
+}
+
+.announcement-date {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+/* 表单 */
 .form-card {
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
     border-radius: 16px;
     padding: 32px;
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
@@ -193,7 +358,8 @@ a:hover {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 12px 16px;
     background: #0f0f0f;
@@ -204,7 +370,8 @@ a:hover {
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     outline: none;
     border-color: #3b82f6;
 }
@@ -224,11 +391,77 @@ a:hover {
     width: auto;
 }
 
+/* 搜索和筛选 */
+.search-bar {
+    display: flex;
+    gap: 12px;
+    margin: 0 0 20px;
+    max-width: 500px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 40px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0 30px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-group label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.filter-select {
+    padding: 10px 16px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.search-info {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+/* 分页 */
 .pagination {
     display: flex;
     justify-content: center;
     gap: 8px;
     margin-top: 40px;
+    flex-wrap: wrap;
 }
 
 .page-btn {
@@ -249,6 +482,7 @@ a:hover {
     background: #2a2a2a;
 }
 
+/* 详情页 */
 .detail-card {
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
@@ -265,11 +499,27 @@ a:hover {
 .detail-meta {
     display: flex;
     gap: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 1px solid #2a2a2a;
     font-size: 0.85rem;
     color: #6b7280;
+    flex-wrap: wrap;
+}
+
+.detail-versions {
+    background: #0f172a;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.detail-image {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
 .detail-description {
@@ -285,6 +535,33 @@ a:hover {
     word-break: break-all;
 }
 
+/* 弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 500px;
+    width: 90%;
+}
+
+/* 消息提示 */
 .message {
     position: fixed;
     top: 80px;
@@ -318,6 +595,7 @@ a:hover {
     }
 }
 
+/* 状态 */
 .loading {
     text-align: center;
     padding: 60px;
@@ -330,17 +608,49 @@ a:hover {
     color: #6b7280;
 }
 
+/* 响应式 - 移动端 */
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
         text-align: center;
     }
     
+    .main-layout {
+        flex-direction: column;
+        padding: 0 16px;
+    }
+    
+    .sidebar {
+        order: -1;
+    }
+    
     .blueprint-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
     
     .detail-title {
         font-size: 1.5rem;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
+    
+    .search-bar {
+        max-width: 100%;
+    }
+    
+    .container {
+        padding: 24px 16px;
     }
 }
