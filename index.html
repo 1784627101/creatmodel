@@ -3,9 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>机械动力蓝图分享社区</title>
+    <title>机械动力蓝图分享社区 - 免费下载Create Mod蓝图</title>
+    <meta name="description" content="机械动力（Create Mod）蓝图分享平台，免费下载、安全检测、无需登录即可浏览。">
+    <meta name="keywords" content="机械动力, Create Mod, 蓝图, 我的世界蓝图, 机械动力蓝图">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <style>
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0 32px;
+            max-width: 500px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 40px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .search-info {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -23,26 +51,50 @@
 
     <main class="container">
         <h1 style="margin-bottom: 8px;">机械动力蓝图分享</h1>
-        <p style="color: #9ca3af; margin-bottom: 32px;">发现和分享机械动力模组的优秀蓝图</p>
+        <p style="color: #9ca3af; margin-bottom: 16px;">发现和分享机械动力模组的优秀蓝图</p>
 
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索蓝图标题或描述..." autocomplete="off">
+            <button id="searchBtn" class="btn btn-primary">搜索</button>
+            <button id="clearSearchBtn" class="btn btn-outline" style="display: none;">清空</button>
+        </div>
+
+        <!-- 搜索结果提示 -->
+        <div id="searchInfo" class="search-info" style="display: none;"></div>
+
+        <!-- 蓝图列表 -->
         <div id="blueprintGrid" class="blueprint-grid">
             <div class="loading">加载中...</div>
         </div>
 
+        <!-- 分页 -->
         <div id="pagination" class="pagination"></div>
     </main>
 
     <script src="script.js"></script>
     <script>
+        let currentKeyword = '';
         let currentPage = 1;
         let totalPages = 1;
 
         async function loadBlueprints(page = 1) {
             const grid = document.getElementById('blueprintGrid');
+            const searchInfo = document.getElementById('searchInfo');
             grid.innerHTML = '<div class="loading">加载中...</div>';
             
             try {
-                const response = await fetch(`${API_URL}/blueprints?page=${page}&limit=12`);
+                let url;
+                if (currentKeyword) {
+                    url = `${API_URL}/blueprints/search?q=${encodeURIComponent(currentKeyword)}&page=${page}&limit=12`;
+                    searchInfo.style.display = 'block';
+                    searchInfo.innerHTML = `搜索 "${currentKeyword}" 的结果：`;
+                } else {
+                    url = `${API_URL}/blueprints?page=${page}&limit=12`;
+                    searchInfo.style.display = 'none';
+                }
+                
+                const response = await fetch(url);
                 const result = await response.json();
                 
                 if (result.success && result.data.length > 0) {
@@ -68,7 +120,12 @@
                     totalPages = Math.ceil(result.total / 12);
                     renderPagination();
                 } else {
-                    grid.innerHTML = '<div class="empty">暂无蓝图，快来发布第一个吧</div>';
+                    if (currentKeyword) {
+                        grid.innerHTML = '<div class="empty">没有找到相关蓝图，试试其他关键词吧</div>';
+                    } else {
+                        grid.innerHTML = '<div class="empty">暂无蓝图，快来发布第一个吧</div>';
+                    }
+                    document.getElementById('pagination').innerHTML = '';
                 }
             } catch (error) {
                 grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
@@ -93,6 +150,55 @@
             currentPage = page;
             loadBlueprints(page);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 搜索
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const keyword = document.getElementById('searchInput').value.trim();
+            currentKeyword = keyword;
+            currentPage = 1;
+            
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (keyword) {
+                clearBtn.style.display = 'inline-block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            loadBlueprints(1);
+        });
+
+        // 清空搜索
+        document.getElementById('clearSearchBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            currentKeyword = '';
+            currentPage = 1;
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            loadBlueprints(1);
+        });
+
+        // 回车搜索
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('searchBtn').click();
+            }
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '未知时间';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '时间错误';
+            return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
         }
 
         updateNavbar();
