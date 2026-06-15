@@ -63,6 +63,13 @@
             color: #6b7280;
             margin: 8px 0;
         }
+        .blueprint-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
         .search-info {
             font-size: 0.8rem;
             color: #6b7280;
@@ -178,6 +185,7 @@
                     result.data.forEach(bp => {
                         grid.innerHTML += `
                             <div class="blueprint-card">
+                                ${bp.preview_image ? `<img src="${bp.preview_image}" class="blueprint-image" alt="${escapeHtml(bp.title)}">` : ''}
                                 <div class="blueprint-title">${escapeHtml(bp.title)}</div>
                                 <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
                                 <div class="blueprint-meta">
