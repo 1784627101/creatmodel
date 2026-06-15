@@ -6,6 +6,8 @@
     <title>发布蓝图 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <!-- NBT 解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/nbt-js@0.1.2/nbt.min.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -43,8 +45,23 @@
                 <div class="form-group">
                     <label>下载链接 *</label>
                     <input type="url" id="link" placeholder="https://..." required>
-                    <small style="color: #6b7280;">只支持 https 链接</small>
+                    <small style="color: #6b7280;">支持网盘链接、GitHub、直接下载链接（必须是 https）</small>
                 </div>
+
+                <!-- NBT 文件上传与解析 -->
+                <div class="form-group">
+                    <label>上传 .nbt 文件（可选）</label>
+                    <input type="file" id="nbtFile" accept=".nbt,.dat,.schematic" style="color: #e0e0e0;">
+                    <small style="color: #6b7280;">上传后自动解析蓝图信息（尺寸、模组等），文件不会保存到服务器</small>
+                    <div id="parseResult" style="margin-top: 12px; display: none;">
+                        <div style="background: #0f172a; border-radius: 8px; padding: 12px; border: 1px solid #334155;">
+                            <div><strong style="color: #3b82f6;">✓ 蓝图信息已解析</strong></div>
+                            <div id="parseInfo" style="font-size: 0.85rem; color: #9ca3af; margin-top: 8px;"></div>
+                        </div>
+                    </div>
+                    <div id="parseError" class="error" style="display: none;">解析失败，文件格式不正确</div>
+                </div>
+                
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="disclaimer" required>
                     <label>我已阅读并同意 <a href="#" id="showDisclaimer">《免责声明》</a>，承诺分享的内容不侵犯他人权益</label>
@@ -91,6 +108,7 @@
     <script src="script.js"></script>
     <script>
         let isSubmitting = false;
+        let parsedNbtInfo = null;
         
         function checkLogin() {
             const loggedIn = isLoggedIn();
@@ -123,7 +141,106 @@
             }
         });
         
-        // 发布表单提交
+        // ========== NBT 文件解析 ==========
+        function extractBlueprintInfo(nbt) {
+            try {
+                let size = null;
+                let palette = [];
+                let blocks = [];
+                
+                // 尝试多种可能的 NBT 结构
+                if (nbt.size && Array.isArray(nbt.size)) {
+                    size = nbt.size;
+                } else if (nbt.Size && Array.isArray(nbt.Size)) {
+                    size = nbt.Size;
+                }
+                
+                if (nbt.palette && Array.isArray(nbt.palette)) {
+                    palette = nbt.palette;
+                } else if (nbt.Palette && Array.isArray(nbt.Palette)) {
+                    palette = nbt.Palette;
+                }
+                
+                if (nbt.blocks && Array.isArray(nbt.blocks)) {
+                    blocks = nbt.blocks;
+                } else if (nbt.Blocks && Array.isArray(nbt.Blocks)) {
+                    blocks = nbt.Blocks;
+                }
+                
+                // 提取模组
+                const mods = new Set();
+                palette.forEach(block => {
+                    const name = block.Name || block.name;
+                    if (name && typeof name === 'string' && name.includes(':')) {
+                        const modId = name.split(':')[0];
+                        if (modId !== 'minecraft') {
+                            mods.add(modId);
+                        }
+                    }
+                });
+                
+                return {
+                    width: size?.[0] || 0,
+                    height: size?.[1] || 0,
+                    length: size?.[2] || 0,
+                    blockCount: blocks.length,
+                    mods: Array.from(mods)
+                };
+            } catch (e) {
+                console.error('解析 NBT 失败:', e);
+                return null;
+            }
+        }
+        
+        document.getElementById('nbtFile')?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+                parsedNbtInfo = null;
+                document.getElementById('parseResult').style.display = 'none';
+                return;
+            }
+            
+            // 限制文件大小 1MB
+            if (file.size > 1024 * 1024) {
+                alert('文件太大，请上传小于 1MB 的 .nbt 文件');
+                document.getElementById('nbtFile').value = '';
+                parsedNbtInfo = null;
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const buffer = evt.target.result;
+                    const nbt = nbt.parse(buffer);
+                    const info = extractBlueprintInfo(nbt);
+                    
+                    if (info && (info.width > 0 || info.mods.length > 0)) {
+                        parsedNbtInfo = info;
+                        document.getElementById('parseInfo').innerHTML = `
+                            <div>📐 尺寸: ${info.width} x ${info.height} x ${info.length}</div>
+                            <div>🧱 方块总数: ${info.blockCount}</div>
+                            <div>📦 需要模组: ${info.mods.length > 0 ? info.mods.join(', ') : '仅原版'}</div>
+                        `;
+                        document.getElementById('parseResult').style.display = 'block';
+                        document.getElementById('parseError').style.display = 'none';
+                    } else {
+                        throw new Error('无法提取有效信息');
+                    }
+                } catch (err) {
+                    console.error('解析失败:', err);
+                    parsedNbtInfo = null;
+                    document.getElementById('parseResult').style.display = 'none';
+                    document.getElementById('parseError').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('parseError').style.display = 'none';
+                    }, 3000);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        // ========== 发布表单提交 ==========
         document.getElementById('publishForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -164,14 +281,19 @@
             try {
                 const response = await authFetch('/blueprints', {
                     method: 'POST',
-                    body: JSON.stringify({ title, description, link })
+                    body: JSON.stringify({ 
+                        title, 
+                        description, 
+                        link,
+                        nbtInfo: parsedNbtInfo
+                    })
                 });
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage('发布成功！等待管理员审核', 'success');
+                    showMessage('发布成功！', 'success');
                     setTimeout(() => {
-                        window.location.href = 'profile.html';
+                        window.location.href = `blueprint.html?id=${result.data.id}`;
                     }, 1500);
                 } else {
                     showMessage(result.error, 'error');
