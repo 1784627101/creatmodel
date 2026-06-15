@@ -8,21 +8,8 @@
     <meta name="keywords" content="机械动力, Create Mod, 蓝图, 我的世界蓝图, 机械动力蓝图">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <!-- 侧边栏特有样式 -->
     <style>
-        .main-layout {
-            display: flex;
-            gap: 32px;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 24px;
-        }
-        .content {
-            flex: 3;
-        }
-        .sidebar {
-            flex: 1;
-            min-width: 260px;
-        }
         .sidebar-card {
             background: #1e293b;
             border: 1px solid #334155;
@@ -40,8 +27,16 @@
         .hot-item {
             display: flex;
             gap: 12px;
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #2a3a5a;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .hot-item:hover {
+            background: #0f172a;
+            margin: 0 -8px;
+            padding: 10px 8px;
+            border-radius: 8px;
         }
         .hot-rank {
             width: 28px;
@@ -91,80 +86,6 @@
             font-size: 0.7rem;
             color: #64748b;
             margin-bottom: 8px;
-        }
-        .search-bar {
-            display: flex;
-            gap: 12px;
-            margin: 0 0 20px;
-            max-width: 500px;
-        }
-        .search-input {
-            flex: 1;
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 40px;
-            color: #e0e0e0;
-            font-size: 0.9rem;
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        .filter-bar {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0 30px;
-            flex-wrap: wrap;
-            align-items: flex-end;
-        }
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .filter-group label {
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
-        .filter-select {
-            padding: 10px 16px;
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 12px;
-            color: #e0e0e0;
-            font-size: 0.9rem;
-            cursor: pointer;
-            min-width: 120px;
-        }
-        .filter-select:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        .blueprint-versions {
-            font-size: 0.7rem;
-            color: #6b7280;
-            margin: 8px 0;
-        }
-        .blueprint-image {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-        .search-info {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-bottom: 16px;
-        }
-        @media (max-width: 768px) {
-            .main-layout {
-                flex-direction: column;
-            }
-            .sidebar {
-                order: -1;
-            }
         }
     </style>
 </head>
@@ -256,7 +177,7 @@
             <div class="sidebar-card">
                 <h3>🔗 友情链接</h3>
                 <div id="friendLinks">
-                    <a href="https://www.mcbbs.co/" target="_blank" class="friend-link">MCBBS 中文论坛</a>
+                    <a href="https://www.mcbbs.co/" target="_blank" class="friend-link">MCBBS 纪念版</a>
                     <a href="https://www.bilibili.com/" target="_blank" class="friend-link">Bilibili 哔哩哔哩</a>
                     <a href="https://www.curseforge.com/minecraft/mc-mods/create" target="_blank" class="friend-link">CurseForge - Create</a>
                     <a href="https://github.com/Creators-of-Create/Create" target="_blank" class="friend-link">GitHub - Create Mod</a>
@@ -385,7 +306,7 @@
                         else if (index === 2) rankClass = 'top3';
                         
                         html += `
-                            <a href="blueprint.html?id=${item.id}" class="hot-item" style="text-decoration: none;">
+                            <a href="blueprint.html?id=${item.id}" class="hot-item">
                                 <div class="hot-rank ${rankClass}">${index + 1}</div>
                                 <div class="hot-info">
                                     <div class="hot-title">${escapeHtml(item.title)}</div>
@@ -396,10 +317,10 @@
                     });
                     container.innerHTML = html;
                 } else {
-                    container.innerHTML = '<div class="loading">暂无数据</div>';
+                    container.innerHTML = '<div class="empty">暂无数据</div>';
                 }
             } catch (error) {
-                container.innerHTML = '<div class="loading">加载失败</div>';
+                container.innerHTML = '<div class="empty">加载失败</div>';
             }
         }
 
