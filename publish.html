@@ -6,8 +6,6 @@
     <title>发布蓝图 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
-    <!-- NBT 解析库 -->
-    <script src="https://cdn.jsdelivr.net/npm/nbt-js@0.1.2/nbt.min.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -42,24 +40,43 @@
                     <label>描述</label>
                     <textarea id="description" rows="4" placeholder="描述你的蓝图功能、使用说明等"></textarea>
                 </div>
+                
+                <!-- 版本选择 -->
+                <div class="form-group">
+                    <label>MC版本 *</label>
+                    <select id="mcVersion" class="version-select" required>
+                        <option value="">请选择</option>
+                        <option value="1.21.1">1.21.1</option>
+                        <option value="1.20.1">1.20.1</option>
+                        <option value="1.19.2">1.19.2</option>
+                        <option value="1.18.2">1.18.2</option>
+                        <option value="1.16.5">1.16.5</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Create版本 *</label>
+                    <select id="createVersion" class="version-select" required>
+                        <option value="">请选择</option>
+                        <option value="6.0.10">6.0.10</option>
+                        <option value="6.0.9">6.0.9</option>
+                        <option value="6.0.8">6.0.8</option>
+                        <option value="6.0.7">6.0.7</option>
+                        <option value="6.0.6">6.0.6</option>
+                        <option value="6.0.5">6.0.5</option>
+                        <option value="6.0.4">6.0.4</option>
+                        <option value="6.0.3">6.0.3</option>
+                        <option value="6.0.2">6.0.2</option>
+                        <option value="6.0.1">6.0.1</option>
+                        <option value="6.0.0">6.0.0</option>
+                        <option value="0.5.1">0.5.1</option>
+                    </select>
+                </div>
+                
                 <div class="form-group">
                     <label>下载链接 *</label>
                     <input type="url" id="link" placeholder="https://..." required>
                     <small style="color: #6b7280;">支持网盘链接、GitHub、直接下载链接（必须是 https）</small>
-                </div>
-
-                <!-- NBT 文件上传与解析 -->
-                <div class="form-group">
-                    <label>上传 .nbt 文件（可选）</label>
-                    <input type="file" id="nbtFile" accept=".nbt,.dat,.schematic" style="color: #e0e0e0;">
-                    <small style="color: #6b7280;">上传后自动解析蓝图信息（尺寸、模组等），文件不会保存到服务器</small>
-                    <div id="parseResult" style="margin-top: 12px; display: none;">
-                        <div style="background: #0f172a; border-radius: 8px; padding: 12px; border: 1px solid #334155;">
-                            <div><strong style="color: #3b82f6;">✓ 蓝图信息已解析</strong></div>
-                            <div id="parseInfo" style="font-size: 0.85rem; color: #9ca3af; margin-top: 8px;"></div>
-                        </div>
-                    </div>
-                    <div id="parseError" class="error" style="display: none;">解析失败，文件格式不正确</div>
                 </div>
                 
                 <div class="form-group checkbox-group">
@@ -71,7 +88,7 @@
         </div>
     </main>
 
-    <!-- 免责声明弹窗（完整版） -->
+    <!-- ========== 免责声明弹窗（完整版） ========== -->
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
@@ -108,7 +125,6 @@
     <script src="script.js"></script>
     <script>
         let isSubmitting = false;
-        let parsedNbtInfo = null;
         
         function checkLogin() {
             const loggedIn = isLoggedIn();
@@ -141,106 +157,6 @@
             }
         });
         
-        // ========== NBT 文件解析 ==========
-        function extractBlueprintInfo(nbt) {
-            try {
-                let size = null;
-                let palette = [];
-                let blocks = [];
-                
-                // 尝试多种可能的 NBT 结构
-                if (nbt.size && Array.isArray(nbt.size)) {
-                    size = nbt.size;
-                } else if (nbt.Size && Array.isArray(nbt.Size)) {
-                    size = nbt.Size;
-                }
-                
-                if (nbt.palette && Array.isArray(nbt.palette)) {
-                    palette = nbt.palette;
-                } else if (nbt.Palette && Array.isArray(nbt.Palette)) {
-                    palette = nbt.Palette;
-                }
-                
-                if (nbt.blocks && Array.isArray(nbt.blocks)) {
-                    blocks = nbt.blocks;
-                } else if (nbt.Blocks && Array.isArray(nbt.Blocks)) {
-                    blocks = nbt.Blocks;
-                }
-                
-                // 提取模组
-                const mods = new Set();
-                palette.forEach(block => {
-                    const name = block.Name || block.name;
-                    if (name && typeof name === 'string' && name.includes(':')) {
-                        const modId = name.split(':')[0];
-                        if (modId !== 'minecraft') {
-                            mods.add(modId);
-                        }
-                    }
-                });
-                
-                return {
-                    width: size?.[0] || 0,
-                    height: size?.[1] || 0,
-                    length: size?.[2] || 0,
-                    blockCount: blocks.length,
-                    mods: Array.from(mods)
-                };
-            } catch (e) {
-                console.error('解析 NBT 失败:', e);
-                return null;
-            }
-        }
-        
-        document.getElementById('nbtFile')?.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) {
-                parsedNbtInfo = null;
-                document.getElementById('parseResult').style.display = 'none';
-                return;
-            }
-            
-            // 限制文件大小 1MB
-            if (file.size > 1024 * 1024) {
-                alert('文件太大，请上传小于 1MB 的 .nbt 文件');
-                document.getElementById('nbtFile').value = '';
-                parsedNbtInfo = null;
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const buffer = evt.target.result;
-                    const nbt = nbt.parse(buffer);
-                    const info = extractBlueprintInfo(nbt);
-                    
-                    if (info && (info.width > 0 || info.mods.length > 0)) {
-                        parsedNbtInfo = info;
-                        document.getElementById('parseInfo').innerHTML = `
-                            <div>📐 尺寸: ${info.width} x ${info.height} x ${info.length}</div>
-                            <div>🧱 方块总数: ${info.blockCount}</div>
-                            <div>📦 需要模组: ${info.mods.length > 0 ? info.mods.join(', ') : '仅原版'}</div>
-                        `;
-                        document.getElementById('parseResult').style.display = 'block';
-                        document.getElementById('parseError').style.display = 'none';
-                    } else {
-                        throw new Error('无法提取有效信息');
-                    }
-                } catch (err) {
-                    console.error('解析失败:', err);
-                    parsedNbtInfo = null;
-                    document.getElementById('parseResult').style.display = 'none';
-                    document.getElementById('parseError').style.display = 'block';
-                    setTimeout(() => {
-                        document.getElementById('parseError').style.display = 'none';
-                    }, 3000);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
-        
-        // ========== 发布表单提交 ==========
         document.getElementById('publishForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -255,6 +171,8 @@
             const title = document.getElementById('title').value.trim();
             const description = document.getElementById('description').value.trim();
             const link = document.getElementById('link').value.trim();
+            const mcVersion = document.getElementById('mcVersion').value;
+            const createVersion = document.getElementById('createVersion').value;
             const disclaimer = document.getElementById('disclaimer').checked;
             
             if (!title) {
@@ -267,6 +185,14 @@
             }
             if (!link.startsWith('https://')) {
                 showMessage('链接必须是 https 协议', 'error');
+                return;
+            }
+            if (!mcVersion) {
+                showMessage('请选择 MC 版本', 'error');
+                return;
+            }
+            if (!createVersion) {
+                showMessage('请选择 Create 版本', 'error');
                 return;
             }
             if (!disclaimer) {
@@ -285,7 +211,8 @@
                         title, 
                         description, 
                         link,
-                        nbtInfo: parsedNbtInfo
+                        mcVersion,
+                        createVersion
                     })
                 });
                 const result = await response.json();
@@ -310,5 +237,21 @@
         checkLogin();
         updateNavbar();
     </script>
+    <style>
+        .version-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .version-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+    </style>
 </body>
 </html>
