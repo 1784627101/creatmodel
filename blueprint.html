@@ -6,6 +6,21 @@
     <title>蓝图详情 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <style>
+        .detail-image {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .detail-versions {
+            background: #0f172a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -75,12 +90,16 @@
             
             container.innerHTML = `
                 <div class="detail-card">
+                    ${bp.preview_image ? `<img src="${bp.preview_image}" class="detail-image" alt="${escapeHtml(bp.title)}">` : ''}
                     <h1 class="detail-title">${escapeHtml(bp.title)}</h1>
                     <div class="detail-meta">
                         <span>发布者: ${escapeHtml(bp.username)}</span>
                         <span>${formatDate(bp.upload_time || bp.created_at)}</span>
                         <span>浏览 ${bp.views || 0}</span>
                         <span>点赞 ${bp.likes || 0}</span>
+                    </div>
+                    <div class="detail-versions">
+                        MC版本: ${escapeHtml(bp.mc_version || '未指定')} | Create版本: ${escapeHtml(bp.create_version || '未指定')}
                     </div>
                     <div class="detail-description">
                         <h3>描述</h3>
@@ -167,7 +186,6 @@
             if (!confirm('确定删除这个蓝图吗？此操作不可恢复')) return;
             
             try {
-                // 使用正确的删除接口路径
                 const response = await authFetch(`/blueprints/${currentBlueprint.id}`, {
                     method: 'DELETE'
                 });
