@@ -1,4 +1,4 @@
-/* ===== 悬浮侧边栏 - 独立样式 ===== */
+/* ===== 悬浮侧边栏 ===== */
 .floating-sidebar {
     position: fixed;
     left: 16px;
@@ -77,7 +77,6 @@
     background: rgba(59, 130, 246, 0.15);
 }
 
-/* 分隔线 */
 .floating-sidebar .divider {
     height: 1px;
     background: rgba(51, 65, 85, 0.4);

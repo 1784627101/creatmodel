@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火炮计算器 - 机械动力蓝图社区</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="page.svg">
+    <style>
+        .calc-container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .calc-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 32px;
+        }
+        .calc-card h1 {
+            color: #e2e8f0;
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        .calc-card .subtitle {
+            color: #94a3b8;
+            text-align: center;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-group select,
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .form-group select:focus,
+        .form-group input[type="number"]:focus {
+            border-color: #3b82f6;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .result-box {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item .label {
+            color: #94a3b8;
+        }
+        .result-item .value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        .value-pass { color: #22c55e; }
+        .value-fail { color: #ef4444; }
+        .value-warn { color: #f97316; }
+        .btn-calc {
+            width: 100%;
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+        .btn-calc:hover {
+            background: #2563eb;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 16px;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #38bdf8;
+        }
+        .info-note {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 12px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .info-note a {
+            color: #3b82f6;
+        }
+        .range-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .range-wrapper input[type="range"] {
+            flex: 1;
+            accent-color: #3b82f6;
+            height: 4px;
+            background: #334155;
+            border-radius: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .range-wrapper input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .range-wrapper input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .range-value {
+            color: #e2e8f0;
+            font-weight: 600;
+            min-width: 32px;
+            text-align: center;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .data-source {
+            font-size: 0.7rem;
+            color: #4b5563;
+            text-align: center;
+            margin-top: 4px;
+        }
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .calc-card {
+                padding: 20px;
+            }
+            .range-wrapper {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calc-container">
+        <a href="apps.html" class="back-link">← 返回小应用</a>
+
+        <div class="calc-card">
+            <h1>火炮计算器</h1>
+            <div class="subtitle">基于 Create Big Cannons 模组真实机制</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>火炮材质</label>
+                    <select id="material">
+                        <option value="wood">木头</option>
+                        <option value="cast_iron" selected>铸铁</option>
+                        <option value="bronze">青铜</option>
+                        <option value="steel">钢</option>
+                        <option value="nethersteel">下界钢</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>炮闩类型</label>
+                    <select id="breech">
+                        <option value="simple" selected>普通炮尾</option>
+                        <option value="quick_fire">速射炮闩</option>
+                        <option value="wedge">楔式炮闩</option>
+                        <option value="screw">螺式炮闩</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>炮管格数</label>
+                    <input type="number" id="barrelLength" value="2" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label>弹药类型</label>
+                    <select id="ammoType">
+                        <option value="powder_charge" selected>发射药 (Powder Charge)</option>
+                        <option value="big_cartridge">大型弹药 (Big Cartridge)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>装药数量</label>
+                <div class="range-wrapper">
+                    <input type="range" id="powderCount" min="0" max="12" value="2" step="1">
+                    <span class="range-value" id="powderCountDisplay">2</span>
+                </div>
+                <div class="range-labels">
+                    <span>0</span>
+                    <span>12</span>
+                </div>
+            </div>
+
+            <button class="btn-calc" onclick="calculate()">计算</button>
+
+            <div id="result" class="result-box" style="display: none;">
+                <div class="result-item">
+                    <span class="label">炮身强度</span>
+                    <span class="value" id="matStrength">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">炮闩强度</span>
+                    <span class="value" id="breechStrength">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">炮弹初速</span>
+                    <span class="value" id="shellVelocity">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">炮管所需初速</span>
+                    <span class="value" id="requiredVelocity">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">发射药推进力</span>
+                    <span class="value" id="propulsionForce">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">最小强度需求</span>
+                    <span class="value" id="minStrengthRequired">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">状态</span>
+                    <span class="value" id="status">-</span>
+                </div>
+                <div class="result-item" id="detailItem" style="display: none;">
+                    <span class="label">详情</span>
+                    <span class="value" id="detail" style="font-weight:400;">-</span>
+                </div>
+            </div>
+
+            <div class="info-note">
+                数据来源：<a href="https://www.mcmod.cn/" target="_blank">MC百科</a> · 
+                发射药每格提供 40m/s 初速并产生 1 推进力[reference:6]<br>
+                大型弹药每级装药提供 40m/s 初速并产生 0.5 推进力，最大 4 级[reference:7]
+            </div>
+            <div class="data-source">材质强度：木头1 / 铸铁2 / 青铜4 / 钢6 / 下界钢8[reference:8]</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 真实游戏数据（来自 MC百科）=====
+
+        // 材质强度与每格炮管需求初速[reference:9]
+        const MATERIAL_DATA = {
+            wood: {
+                label: '木头',
+                strength: 1,
+                velocityPerBlock: 40,
+                maxPowder: 1
+            },
+            cast_iron: {
+                label: '铸铁',
+                strength: 2,
+                velocityPerBlock: 40,
+                maxPowder: 2
+            },
+            bronze: {
+                label: '青铜',
+                strength: 4,
+                velocityPerBlock: 26.67,
+                maxPowder: 4
+            },
+            steel: {
+                label: '钢',
+                strength: 6,
+                velocityPerBlock: 20,
+                maxPowder: 6
+            },
+            nethersteel: {
+                label: '下界钢',
+                strength: 8,
+                velocityPerBlock: 13.33,
+                maxPowder: 8
+            }
+        };
+
+        // 炮闩强度[reference:10]
+        const BREECH_DATA = {
+            simple: { label: '普通炮尾', strengths: { cast_iron: 1, bronze: 2, steel: 4 } },
+            quick_fire: { label: '速射炮闩', strengths: { cast_iron: 2, bronze: 2, steel: 2 } },
+            wedge: { label: '楔式炮闩', strengths: { cast_iron: null, bronze: 2, steel: 4 } },
+            screw: { label: '螺式炮闩', strengths: { cast_iron: null, bronze: null, steel: 6 } }
+        };
+
+        // 弹药数据[reference:11]
+        const AMMO_DATA = {
+            powder_charge: {
+                label: '发射药',
+                velocityPerUnit: 40,
+                forcePerUnit: 1,
+                maxUnits: 12
+            },
+            big_cartridge: {
+                label: '大型弹药',
+                velocityPerUnit: 40,
+                forcePerUnit: 0.5,
+                maxUnits: 4
+            }
+        };
+
+        function calculate() {
+            const material = document.getElementById('material').value;
+            const breechType = document.getElementById('breech').value;
+            const barrelLength = parseInt(document.getElementById('barrelLength').value) || 1;
+            const ammoType = document.getElementById('ammoType').value;
+            const powderCount = parseInt(document.getElementById('powderCount').value) || 0;
+
+            const mat = MATERIAL_DATA[material];
+            const breech = BREECH_DATA[breechType];
+            const ammo = AMMO_DATA[ammoType];
+
+            // 获取炮闩强度
+            let breechStrength = breech.strengths[material];
+            if (breechStrength === null || breechStrength === undefined) {
+                breechStrength = 0;
+            }
+
+            // 计算炮管所需初速 = 每格需求初速 × 炮管格数[reference:12]
+            const requiredVelocity = mat.velocityPerBlock * barrelLength;
+
+            // 计算炮弹初速 = 每单位初速 × 装药数量[reference:13]
+            const shellVelocity = ammo.velocityPerUnit * powderCount;
+
+            // 计算发射药推进力 = 每单位推进力 × 装药数量[reference:14]
+            const propulsionForce = ammo.forcePerUnit * powderCount;
+
+            // 最小强度需求（取炮身强度和炮闩强度中的较小值，因为两者中任何一个不足都会炸膛）
+            const minStrength = Math.min(mat.strength, breechStrength);
+
+            // 判断状态
+            let status = '';
+            let statusClass = '';
+            let detail = '';
+            let detailVisible = false;
+
+            // 检查是否卡弹：炮弹初速小于炮管所需初速[reference:15]
+            if (shellVelocity < requiredVelocity && powderCount > 0) {
+                status = '卡弹';
+                statusClass = 'value-fail';
+                detail = '炮弹初速 (' + shellVelocity.toFixed(1) + 'm/s) 小于炮管所需初速 (' + requiredVelocity.toFixed(1) + 'm/s)，炮弹会卡在炮管中';
+                detailVisible = true;
+            }
+            // 检查是否炸膛：推进力大于强度[reference:16]
+            else if (propulsionForce > minStrength && powderCount > 0) {
+                status = '炸膛';
+                statusClass = 'value-fail';
+                let weakPart = '';
+                if (mat.strength < breechStrength) {
+                    weakPart = '炮身强度不足 (' + mat.strength + ' < ' + propulsionForce.toFixed(1) + ')';
+                } else if (breechStrength < mat.strength) {
+                    weakPart = '炮闩强度不足 (' + breechStrength + ' < ' + propulsionForce.toFixed(1) + ')';
+                } else {
+                    weakPart = '强度不足 (' + minStrength + ' < ' + propulsionForce.toFixed(1) + ')';
+                }
+                detail = '推进力 (' + propulsionForce.toFixed(1) + ') 大于 ' + weakPart + '，火炮会炸膛';
+                detailVisible = true;
+            }
+            // 装药为0
+            else if (powderCount === 0) {
+                status = '无法发射';
+                statusClass = 'value-warn';
+                detail = '没有装填发射药，无法发射';
+                detailVisible = true;
+            }
+            // 正常发射
+            else {
+                status = '正常发射';
+                statusClass = 'value-pass';
+                const margin = minStrength - propulsionForce;
+                detail = '安全余量: ' + margin.toFixed(1) + ' (强度 ' + minStrength + ' - 推进力 ' + propulsionForce.toFixed(1) + ')';
+                detailVisible = true;
+            }
+
+            // 显示结果
+            document.getElementById('result').style.display = 'block';
+
+            document.getElementById('matStrength').textContent = mat.label + ' (强度 ' + mat.strength + ')';
+            document.getElementById('matStrength').className = 'value';
+
+            document.getElementById('breechStrength').textContent = breech.label + (breechStrength > 0 ? ' (强度 ' + breechStrength + ')' : ' (不兼容)');
+            document.getElementById('breechStrength').className = 'value';
+
+            document.getElementById('shellVelocity').textContent = shellVelocity.toFixed(1) + ' m/s';
+            document.getElementById('shellVelocity').className = 'value';
+
+            document.getElementById('requiredVelocity').textContent = requiredVelocity.toFixed(1) + ' m/s (' + barrelLength + '格炮管)';
+            document.getElementById('requiredVelocity').className = 'value';
+
+            document.getElementById('propulsionForce').textContent = propulsionForce.toFixed(1);
+            document.getElementById('propulsionForce').className = 'value';
+
+            document.getElementById('minStrengthRequired').textContent = minStrength;
+            document.getElementById('minStrengthRequired').className = 'value';
+
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = status;
+            statusEl.className = 'value ' + statusClass;
+
+            const detailItem = document.getElementById('detailItem');
+            const detailEl = document.getElementById('detail');
+            if (detailVisible) {
+                detailItem.style.display = 'flex';
+                detailEl.textContent = detail;
+            } else {
+                detailItem.style.display = 'none';
+            }
+        }
+
+        // 滑块数值显示
+        document.getElementById('powderCount').addEventListener('input', function() {
+            document.getElementById('powderCountDisplay').textContent = this.value;
+            // 自动计算
+            calculate();
+        });
+
+        // 所有输入变化时自动计算
+        document.getElementById('material').addEventListener('change', calculate);
+        document.getElementById('breech').addEventListener('change', calculate);
+        document.getElementById('ammoType').addEventListener('change', calculate);
+        document.getElementById('barrelLength').addEventListener('input', calculate);
+
+        // 页面加载后自动计算
+        window.addEventListener('load', function() {
+            calculate();
+        });
+    </script>
+
+    <script src="sidebar.js"></script>
+</body>
+</html>

@@ -33,6 +33,12 @@
                 </span>
                 <span class="label">我的蓝图</span>
             </a>
+            <a href="apps.html" class="nav-item" data-page="apps">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                </span>
+                <span class="label">小应用</span>
+            </a>
             <div class="divider"></div>
             <a href="login.html" class="nav-item" id="loginNavItem" data-page="login">
                 <span class="icon">
@@ -132,7 +138,7 @@
                 const dataUrl = ev.target.result;
                 localStorage.setItem('customBg', dataUrl);
                 loadBg();
-                showToast('✅ 背景已更新', '#22c55e');
+                showToast('背景已更新', '#22c55e');
             };
             reader.readAsDataURL(file);
         });
@@ -143,12 +149,11 @@
                 localStorage.removeItem('customBg');
                 const style = document.getElementById('customBgStyle');
                 if (style) style.remove();
-                showToast('🗑️ 背景已清除', '#ef4444');
+                showToast('背景已清除', '#ef4444');
             }
         });
     }
 
-    // 提示消息
     function showToast(text, color) {
         const existing = document.querySelector('.bg-toast');
         if (existing) existing.remove();
@@ -177,7 +182,6 @@
         }, 2000);
     }
 
-    // 添加动画
     const animStyle = document.createElement('style');
     animStyle.textContent = `
         @keyframes fadeInUp {
