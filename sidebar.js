@@ -1,37 +1,52 @@
-// ===== 侧边栏组件 =====
+// ===== 侧边栏组件（完整版）=====
+
+// 1. 自动加载侧边栏专用 CSS
+(function loadSidebarCss() {
+    if (!document.getElementById('sidebarCss')) {
+        const link = document.createElement('link');
+        link.id = 'sidebarCss';
+        link.rel = 'stylesheet';
+        link.href = 'sidebar.css';
+        document.head.appendChild(link);
+    }
+})();
+
+// 2. 注入侧边栏 HTML
 (function initSidebar() {
-    // 侧边栏 HTML
     const sidebarHTML = `
         <nav class="floating-sidebar" id="floatingSidebar">
             <a href="index.html" class="nav-item" data-page="index">
                 <span class="icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
                 </span>
                 <span class="label">主页</span>
             </a>
             <a href="publish.html" class="nav-item" data-page="publish">
                 <span class="icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
                 </span>
                 <span class="label">发布蓝图</span>
             </a>
             <a href="profile.html" class="nav-item" data-page="profile">
                 <span class="icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>
                 <span class="label">我的蓝图</span>
             </a>
+            <div class="divider"></div>
             <a href="login.html" class="nav-item" id="loginNavItem" data-page="login">
                 <span class="icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                 </span>
                 <span class="label" id="loginLabel">登录</span>
             </a>
         </nav>
     `;
 
-    // 注入侧边栏到页面
-    document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+    // 只在侧边栏不存在时注入
+    if (!document.getElementById('floatingSidebar')) {
+        document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+    }
 
     // 高亮当前页面
     const currentPath = window.location.pathname;
@@ -56,53 +71,12 @@
     }
 })();
 
-// ===== 自定义背景 =====
+// 3. 自定义背景上传
 (function initBg() {
-    const savedBg = localStorage.getItem('customBg');
-    if (savedBg) {
-        const style = document.createElement('style');
-        style.id = 'customBgStyle';
-        style.textContent = `
-            body::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: -1;
-                background-image: url(${savedBg});
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                opacity: 0.3;
-            }
-            body {
-                background: #0f0f0f;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    // 背景上传按钮
-    const uploadBtn = document.createElement('div');
-    uploadBtn.className = 'bg-upload-btn';
-    uploadBtn.innerHTML = `
-        <input type="file" id="bgUpload" accept="image/*">
-        <span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </span>
-    `;
-    document.body.appendChild(uploadBtn);
-
-    document.getElementById('bgUpload')?.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            const dataUrl = ev.target.result;
-            localStorage.setItem('customBg', dataUrl);
-            // 更新背景样式
+    // 加载保存的背景
+    function loadBg() {
+        const savedBg = localStorage.getItem('customBg');
+        if (savedBg) {
             let style = document.getElementById('customBgStyle');
             if (!style) {
                 style = document.createElement('style');
@@ -118,17 +92,98 @@
                     width: 100%;
                     height: 100%;
                     z-index: -1;
-                    background-image: url(${dataUrl});
+                    background-image: url(${savedBg});
                     background-size: cover;
                     background-position: center;
                     background-repeat: no-repeat;
-                    opacity: 0.3;
+                    opacity: 0.25;
                 }
                 body {
                     background: #0f0f0f;
                 }
             `;
-        };
-        reader.readAsDataURL(file);
-    });
+        }
+    }
+    loadBg();
+
+    // 背景上传按钮
+    if (!document.querySelector('.bg-upload-btn')) {
+        const uploadBtn = document.createElement('div');
+        uploadBtn.className = 'bg-upload-btn';
+        uploadBtn.setAttribute('title', '上传自定义背景（双击清除）');
+        uploadBtn.innerHTML = `
+            <input type="file" id="bgUpload" accept="image/*">
+            <span>
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </span>
+        `;
+        document.body.appendChild(uploadBtn);
+
+        // 上传事件
+        document.getElementById('bgUpload')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const dataUrl = ev.target.result;
+                localStorage.setItem('customBg', dataUrl);
+                loadBg();
+                showToast('✅ 背景已更新', '#22c55e');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 双击清除背景
+        uploadBtn.addEventListener('dblclick', function() {
+            if (confirm('确定要清除自定义背景吗？')) {
+                localStorage.removeItem('customBg');
+                const style = document.getElementById('customBgStyle');
+                if (style) style.remove();
+                showToast('🗑️ 背景已清除', '#ef4444');
+            }
+        });
+    }
+
+    // 提示消息
+    function showToast(text, color) {
+        const existing = document.querySelector('.bg-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'bg-toast';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            right: 28px;
+            background: ${color};
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            z-index: 10000;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: 500;
+        `;
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s';
+            setTimeout(() => toast.remove(), 500);
+        }, 2000);
+    }
+
+    // 添加动画
+    const animStyle = document.createElement('style');
+    animStyle.textContent = `
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(animStyle);
 })();
