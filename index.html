@@ -78,6 +78,7 @@
     </style>
 </head>
 <body>
+    <!-- ===== 顶部导航栏（保留） ===== -->
     <nav class="navbar">
         <div class="logo">
             Create<span>Mechanical</span>
@@ -86,6 +87,7 @@
             <a href="index.html" class="nav-link">首页</a>
             <a href="publish.html" class="nav-link">发布蓝图</a>
             <a href="profile.html" class="nav-link">我的发布</a>
+            <a href="apps.html" class="nav-link">小应用</a>
             <a href="login.html" class="btn btn-outline">登录</a>
             <a href="register.html" class="btn btn-primary">注册</a>
         </div>
@@ -145,15 +147,16 @@
             <div id="pagination" class="pagination"></div>
         </div>
 
+        <!-- 侧边栏 -->
         <div class="sidebar">
             <div class="sidebar-card">
-                <h3>🔥 热门榜</h3>
+                <h3>热门榜</h3>
                 <div id="hotList">
                     <div class="loading">加载中...</div>
                 </div>
             </div>
             <div class="sidebar-card">
-                <h3>🔗 友情链接</h3>
+                <h3>友情链接</h3>
                 <div id="friendLinks">
                     <a href="https://www.mcbbs.co/" target="_blank" class="friend-link">MCBBS 纪念版</a>
                     <a href="https://www.bilibili.com/" target="_blank" class="friend-link">Bilibili</a>
@@ -162,15 +165,15 @@
                 </div>
             </div>
             <div class="sidebar-card">
-                <h3>📢 公告</h3>
+                <h3>公告</h3>
                 <div id="announcement">
                     <div class="announcement-date">2026年6月15日</div>
                     <div class="announcement">
                         欢迎来到机械动力蓝图分享社区！<br><br>
-                        📌 发布蓝图请先登录<br>
-                        📌 每个IP每天可发布3个蓝图<br>
-                        📌 所有链接会经过安全检测<br>
-                        📌 有问题请联系：creatmodel@163.com
+                        发布蓝图请先登录<br>
+                        每个IP每天可发布3个蓝图<br>
+                        所有链接会经过安全检测<br>
+                        有问题请联系：creatmodel@163.com
                     </div>
                 </div>
             </div>
@@ -217,7 +220,7 @@
                                 <div class="blueprint-title">${escapeHtml(bp.title)}</div>
                                 <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
                                 <div class="blueprint-meta">
-                                    <span>发布者: <a href="user.html?user=${encodeURIComponent(bp.username)}" style="color: #3b82f6; text-decoration: none;">${escapeHtml(bp.username)}</a></span>
+                                    <span>发布者: ${escapeHtml(bp.username)}</span>
                                     <span>${formatDate(bp.upload_time || bp.created_at)}</span>
                                 </div>
                                 <div class="blueprint-versions">
@@ -279,13 +282,12 @@
                         if (index === 0) rankClass = 'top1';
                         else if (index === 1) rankClass = 'top2';
                         else if (index === 2) rankClass = 'top3';
-                        
                         html += `
                             <a href="blueprint.html?id=${item.id}" class="hot-item">
                                 <div class="hot-rank ${rankClass}">${index + 1}</div>
                                 <div class="hot-info">
                                     <div class="hot-title">${escapeHtml(item.title)}</div>
-                                    <div class="hot-meta">❤️ ${item.likes || 0} · 👁️ ${item.views || 0} · ${escapeHtml(item.mc_version || '?')}/${escapeHtml(item.create_version || '?')}</div>
+                                    <div class="hot-meta">点赞 ${item.likes || 0} · 浏览 ${item.views || 0} · ${escapeHtml(item.mc_version || '?')}/${escapeHtml(item.create_version || '?')}</div>
                                 </div>
                             </a>
                         `;
@@ -353,9 +355,9 @@
             return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
         }
 
-        updateNavbar();
         loadBlueprints();
         loadHotList();
     </script>
+    <script src="sidebar.js"></script>
 </body>
 </html>
