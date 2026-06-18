@@ -1,193 +1,201 @@
-// ===== 侧边栏组件（完整版）=====
+/* ===== 悬浮侧边栏 ===== */
+.floating-sidebar {
+    position: fixed;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    background: rgba(30, 41, 59, 0.88);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    width: 48px;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    align-items: center;
+}
 
-// 1. 自动加载侧边栏专用 CSS
-(function loadSidebarCss() {
-    if (!document.getElementById('sidebarCss')) {
-        const link = document.createElement('link');
-        link.id = 'sidebarCss';
-        link.rel = 'stylesheet';
-        link.href = 'sidebar.css';
-        document.head.appendChild(link);
-    }
-})();
+.floating-sidebar:hover {
+    width: 156px;
+}
 
-// 2. 注入侧边栏 HTML
-(function initSidebar() {
-    const sidebarHTML = `
-        <nav class="floating-sidebar" id="floatingSidebar">
-            <a href="index.html" class="nav-item" data-page="index">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
-                </span>
-                <span class="label">主页</span>
-            </a>
-            <a href="publish.html" class="nav-item" data-page="publish">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
-                </span>
-                <span class="label">发布蓝图</span>
-            </a>
-            <a href="profile.html" class="nav-item" data-page="profile">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </span>
-                <span class="label">我的蓝图</span>
-            </a>
-            <a href="apps.html" class="nav-item" data-page="apps">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                </span>
-                <span class="label">小应用</span>
-            </a>
-            <div class="divider"></div>
-            <a href="login.html" class="nav-item" id="loginNavItem" data-page="login">
-                <span class="icon">
-                    <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                </span>
-                <span class="label" id="loginLabel">登录</span>
-            </a>
-        </nav>
-    `;
+.floating-sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 10px 0;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    border-radius: 10px;
+    margin: 0 4px;
+    cursor: pointer;
+    width: calc(100% - 8px);
+}
 
-    // 只在侧边栏不存在时注入
-    if (!document.getElementById('floatingSidebar')) {
-        document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
-    }
+.floating-sidebar .nav-item:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #38bdf8;
+}
 
-    // 高亮当前页面
-    const currentPath = window.location.pathname;
-    document.querySelectorAll('.nav-item').forEach(el => {
-        const href = el.getAttribute('href');
-        if (href && currentPath.includes(href.replace('.html', ''))) {
-            el.classList.add('active');
-        }
-    });
+.floating-sidebar .nav-item .icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    // 登录状态更新
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const loginItem = document.getElementById('loginNavItem');
-    const loginLabel = document.getElementById('loginLabel');
-    if (token && username) {
-        loginLabel.textContent = username;
-        loginItem.href = 'profile.html';
-    } else {
-        loginLabel.textContent = '登录';
-        loginItem.href = 'login.html';
-    }
-})();
+.floating-sidebar .nav-item .icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 
-// 3. 自定义背景上传
-(function initBg() {
-    // 加载保存的背景
-    function loadBg() {
-        const savedBg = localStorage.getItem('customBg');
-        if (savedBg) {
-            let style = document.getElementById('customBgStyle');
-            if (!style) {
-                style = document.createElement('style');
-                style.id = 'customBgStyle';
-                document.head.appendChild(style);
-            }
-            style.textContent = `
-                body::before {
-                    content: '';
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    z-index: -1;
-                    background-image: url(${savedBg});
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                    opacity: 0.25;
-                }
-                body {
-                    background: #0f0f0f;
-                }
-            `;
-        }
-    }
-    loadBg();
+.floating-sidebar .nav-item .label {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.25s ease 0.05s;
+    margin-left: 2px;
+}
 
-    // 背景上传按钮
-    if (!document.querySelector('.bg-upload-btn')) {
-        const uploadBtn = document.createElement('div');
-        uploadBtn.className = 'bg-upload-btn';
-        uploadBtn.setAttribute('title', '上传自定义背景（双击清除）');
-        uploadBtn.innerHTML = `
-            <input type="file" id="bgUpload" accept="image/*">
-            <span>
-                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </span>
-        `;
-        document.body.appendChild(uploadBtn);
+.floating-sidebar:hover .nav-item .label {
+    opacity: 1;
+}
 
-        // 上传事件
-        document.getElementById('bgUpload')?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                alert('请选择图片文件');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const dataUrl = ev.target.result;
-                localStorage.setItem('customBg', dataUrl);
-                loadBg();
-                showToast('背景已更新', '#22c55e');
-            };
-            reader.readAsDataURL(file);
-        });
+.floating-sidebar .nav-item.active {
+    color: #38bdf8;
+    background: rgba(59, 130, 246, 0.15);
+}
 
-        // 双击清除背景
-        uploadBtn.addEventListener('dblclick', function() {
-            if (confirm('确定要清除自定义背景吗？')) {
-                localStorage.removeItem('customBg');
-                const style = document.getElementById('customBgStyle');
-                if (style) style.remove();
-                showToast('背景已清除', '#ef4444');
-            }
-        });
-    }
+.floating-sidebar .divider {
+    height: 1px;
+    background: rgba(51, 65, 85, 0.4);
+    margin: 4px 12px;
+    width: calc(100% - 24px);
+}
 
-    function showToast(text, color) {
-        const existing = document.querySelector('.bg-toast');
-        if (existing) existing.remove();
-        const toast = document.createElement('div');
-        toast.className = 'bg-toast';
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 80px;
-            right: 28px;
-            background: ${color};
-            color: white;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            z-index: 10000;
-            animation: fadeInUp 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-weight: 500;
-        `;
-        toast.textContent = text;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s';
-            setTimeout(() => toast.remove(), 500);
-        }, 2000);
+/* ===== 背景上传按钮 ===== */
+.bg-upload-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 999;
+    background: rgba(30, 41, 59, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #94a3b8;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.bg-upload-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    color: #38bdf8;
+    transform: scale(1.08);
+}
+
+.bg-upload-btn input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.bg-upload-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+    .floating-sidebar {
+        left: 0;
+        right: 0;
+        bottom: 16px;
+        top: auto;
+        transform: none;
+        width: calc(100% - 32px);
+        max-width: 320px;
+        margin: 0 auto;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 8px 4px;
+        border-radius: 40px;
+        gap: 2px;
+        background: rgba(30, 41, 59, 0.95);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(51, 65, 85, 0.6);
+        transition: none;
+        align-items: center;
     }
 
-    const animStyle = document.createElement('style');
-    animStyle.textContent = `
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    `;
-    document.head.appendChild(animStyle);
-})();
+    .floating-sidebar:hover {
+        width: calc(100% - 32px);
+        max-width: 320px;
+    }
+
+    .floating-sidebar .nav-item {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 4px;
+        min-width: 0;
+        gap: 0;
+        flex-shrink: 1;
+        width: auto;
+        margin: 0;
+    }
+
+    .floating-sidebar .nav-item .icon {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+    }
+
+    .floating-sidebar .nav-item .icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .floating-sidebar .nav-item .label {
+        display: none;
+    }
+
+    .floating-sidebar .divider {
+        display: none;
+    }
+
+    .bg-upload-btn {
+        bottom: 80px;
+        right: 16px;
+        width: 40px;
+        height: 40px;
+    }
+}
