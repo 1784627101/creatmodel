@@ -1,6 +1,5 @@
-// ===== 侧边栏组件（完整版）=====
+// ===== 侧边栏组件 =====
 
-// 1. 自动加载侧边栏专用 CSS
 (function loadSidebarCss() {
     if (!document.getElementById('sidebarCss')) {
         const link = document.createElement('link');
@@ -11,7 +10,6 @@
     }
 })();
 
-// 2. 注入侧边栏 HTML
 (function initSidebar() {
     const sidebarHTML = `
         <nav class="floating-sidebar" id="floatingSidebar">
@@ -31,7 +29,7 @@
                 <span class="icon">
                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>
-                <span class="label">我的蓝图</span>
+                <span class="label">个人中心</span>
             </a>
             <a href="apps.html" class="nav-item" data-page="apps">
                 <span class="icon">
@@ -53,7 +51,6 @@
         document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
     }
 
-    // 高亮当前页面
     const currentPath = window.location.pathname;
     document.querySelectorAll('.nav-item').forEach(el => {
         const href = el.getAttribute('href');
@@ -62,27 +59,28 @@
         }
     });
 
-    // 登录状态更新
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const loginItem = document.getElementById('loginNavItem');
     const loginLabel = document.getElementById('loginLabel');
+    const profileLink = document.getElementById('profileNavItem');
+
     if (token && username) {
         loginLabel.textContent = username;
         loginItem.href = 'user.html?user=' + username;
+        if (profileLink) {
+            profileLink.href = 'user.html?user=' + username;
+        }
     } else {
         loginLabel.textContent = '登录';
         loginItem.href = 'login.html';
-    }
-
-    // 更新「我的蓝图」链接
-    const profileLink = document.getElementById('profileNavItem');
-    if (profileLink && username) {
-        profileLink.href = 'user.html?user=' + username;
+        if (profileLink) {
+            profileLink.href = 'login.html';
+        }
     }
 })();
 
-// 3. 自定义背景上传
+// ===== 背景上传 =====
 (function initBg() {
     function loadBg() {
         const savedBg = localStorage.getItem('customBg');
