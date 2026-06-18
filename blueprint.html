@@ -20,117 +20,19 @@
             font-size: 0.85rem;
             color: #9ca3af;
         }
-        .detail-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 40px 24px;
-        }
-        .detail-card {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 16px;
-            padding: 32px;
-        }
-        .detail-title {
-            color: #e2e8f0;
-            font-size: 1.8rem;
-            margin-bottom: 12px;
-        }
-        .detail-meta {
-            display: flex;
-            gap: 20px;
-            color: #6b7280;
-            font-size: 0.85rem;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        .detail-description {
-            margin: 16px 0;
-            color: #94a3b8;
-            line-height: 1.6;
-        }
-        .detail-description h3 {
-            color: #e2e8f0;
-            margin-bottom: 8px;
-        }
-        .detail-link {
-            margin: 16px 0;
-        }
-        .detail-link h3 {
-            color: #e2e8f0;
-            margin-bottom: 8px;
-        }
-        .loading {
-            text-align: center;
-            color: #6b7280;
-            padding: 40px;
-        }
-        .empty {
-            text-align: center;
-            color: #6b7280;
-            padding: 40px;
-        }
-        .btn {
-            padding: 8px 20px;
-            border-radius: 40px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: inline-block;
-            text-decoration: none;
-        }
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #3b82f6;
-            color: #3b82f6;
-        }
-        .btn-outline:hover {
-            background: #3b82f6;
-            color: white;
-        }
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        .btn-secondary {
-            background: #2a2a2a;
-            color: #e2e8f0;
-        }
-        .btn-secondary:hover {
-            background: #3a3a3a;
-        }
-        .detail-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            flex-wrap: wrap;
-        }
     </style>
 </head>
 <body>
 
-    <div class="detail-container">
+    <main class="container">
         <div id="detailContainer">
             <div class="loading">加载中...</div>
         </div>
-    </div>
+    </main>
 
-    <!-- 举报弹窗 -->
     <div id="reportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%;">
-            <h3 style="margin-bottom: 16px; color: #e2e8f0;">举报蓝图</h3>
+            <h3 style="margin-bottom: 16px;">举报蓝图</h3>
             <textarea id="reportReason" rows="4" placeholder="请填写举报原因..." style="width: 100%; padding: 12px; background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; color: white; margin-bottom: 16px;"></textarea>
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
                 <button class="btn btn-secondary" onclick="closeReportModal()">取消</button>
@@ -141,82 +43,21 @@
 
     <script src="script.js"></script>
     <script>
-        const API_URL = 'http://energetic-presence.railway.internal/api';
         let currentBlueprint = null;
-
-        function isLoggedIn() {
-            return !!localStorage.getItem('token');
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '未知';
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '未知';
-            return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
-        }
-
-        async function authFetch(url, options = {}) {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'login.html';
-                throw new Error('未登录');
-            }
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token,
-                ...options.headers
-            };
-            const response = await fetch(API_URL + url, { ...options, headers });
-            if (response.status === 401) {
-                localStorage.clear();
-                window.location.href = 'login.html';
-                throw new Error('登录已过期');
-            }
-            return response;
-        }
-
-        function showMessage(text, type) {
-            const msg = document.createElement('div');
-            msg.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                padding: 12px 20px;
-                border-radius: 12px;
-                background: #1a1a1a;
-                border: 1px solid ${type === 'success' ? '#22c55e' : '#ef4444'};
-                color: ${type === 'success' ? '#22c55e' : '#ef4444'};
-                z-index: 1000;
-                animation: slideIn 0.3s ease;
-            `;
-            msg.textContent = text;
-            document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 3000);
-        }
-
+        
         async function loadBlueprint() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
-
+            
             if (!id) {
                 document.getElementById('detailContainer').innerHTML = '<div class="empty">无效的蓝图ID</div>';
                 return;
             }
-
+            
             try {
-                const response = await fetch(API_URL + `/blueprints/${id}`);
+                const response = await fetch(`${API_URL}/blueprints/${id}`);
                 const result = await response.json();
-
+                
                 if (result.success) {
                     currentBlueprint = result.data;
                     renderBlueprint();
@@ -227,14 +68,13 @@
                 document.getElementById('detailContainer').innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
             }
         }
-
+        
         function renderBlueprint() {
             const bp = currentBlueprint;
             const container = document.getElementById('detailContainer');
             const loggedIn = isLoggedIn();
-            const username = localStorage.getItem('username');
-            const isOwner = loggedIn && username === bp.username;
-
+            const isOwner = loggedIn && localStorage.getItem('username') === bp.username;
+            
             container.innerHTML = `
                 <div class="detail-card">
                     ${bp.preview_image ? `<img src="${bp.preview_image}" class="detail-image" alt="${escapeHtml(bp.title)}">` : ''}
@@ -255,14 +95,14 @@
                     <div class="detail-link">
                         <h3>下载链接</h3>
                         ${loggedIn ? 
-                            `<a href="${escapeHtml(bp.original_link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">点击下载</a>
+                            `<a href="${escapeHtml(bp.original_link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block;">点击下载</a>
                              <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280; word-break: break-all;">链接：${escapeHtml(bp.original_link)}</p>` : 
                             `<p style="color: #f97316; padding: 12px; background: #2a2a2a; border-radius: 8px;">
                                 请先 <a href="login.html" style="color: #3b82f6;">登录</a> 后查看下载链接
                              </p>`
                         }
                     </div>
-                    <div class="detail-actions">
+                    <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
                         <button class="btn btn-primary" onclick="likeBlueprint()">点赞</button>
                         ${loggedIn ? `<button class="btn btn-outline" onclick="openReportModal()">举报</button>` : ''}
                         ${isOwner ? `<button class="btn btn-danger" onclick="deleteBlueprint()">删除</button>` : ''}
@@ -270,11 +110,13 @@
                 </div>
             `;
         }
-
+        
         async function likeBlueprint() {
             if (!currentBlueprint) return;
             try {
-                const response = await fetch(API_URL + `/blueprints/${currentBlueprint.id}/like`, { method: 'POST' });
+                const response = await fetch(`${API_URL}/blueprints/${currentBlueprint.id}/like`, {
+                    method: 'POST'
+                });
                 const result = await response.json();
                 if (result.success) {
                     currentBlueprint.likes = (currentBlueprint.likes || 0) + 1;
@@ -285,33 +127,37 @@
                 showMessage('操作失败', 'error');
             }
         }
-
+        
         function openReportModal() {
             if (!isLoggedIn()) {
                 showMessage('请先登录再举报', 'error');
-                setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
                 return;
             }
             document.getElementById('reportModal').style.display = 'flex';
         }
-
+        
         function closeReportModal() {
             document.getElementById('reportModal').style.display = 'none';
             document.getElementById('reportReason').value = '';
         }
-
+        
         async function submitReport() {
             const reason = document.getElementById('reportReason').value.trim();
             if (!reason) {
                 showMessage('请填写举报原因', 'error');
                 return;
             }
+            
             try {
                 const response = await authFetch(`/blueprints/${currentBlueprint.id}/report`, {
                     method: 'POST',
                     body: JSON.stringify({ reason })
                 });
                 const result = await response.json();
+                
                 if (result.success) {
                     showMessage('举报已提交，感谢反馈', 'success');
                     closeReportModal();
@@ -322,15 +168,21 @@
                 showMessage('提交失败: ' + error.message, 'error');
             }
         }
-
+        
         async function deleteBlueprint() {
             if (!confirm('确定删除这个蓝图吗？此操作不可恢复')) return;
+            
             try {
-                const response = await authFetch(`/blueprints/${currentBlueprint.id}`, { method: 'DELETE' });
+                const response = await authFetch(`/blueprints/${currentBlueprint.id}`, {
+                    method: 'DELETE'
+                });
                 const result = await response.json();
+                
                 if (result.success) {
                     showMessage('删除成功', 'success');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
                 } else {
                     showMessage(result.error, 'error');
                 }
@@ -338,17 +190,15 @@
                 showMessage('删除失败: ' + error.message, 'error');
             }
         }
-
+        
         window.addEventListener('click', (e) => {
             const modal = document.getElementById('reportModal');
-            if (e.target === modal) closeReportModal();
+            if (e.target === modal) {
+                closeReportModal();
+            }
         });
-
-        // 注入动画样式
-        const style = document.createElement('style');
-        style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
-        document.head.appendChild(style);
-
+        
+        updateNavbar();
         loadBlueprint();
     </script>
     <script src="sidebar.js"></script>
