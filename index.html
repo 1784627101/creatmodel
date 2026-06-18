@@ -9,6 +9,101 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
     <style>
+        /* 顶部导航栏 */
+        .top-nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .top-nav .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        .top-nav .logo span {
+            color: #e2e8f0;
+        }
+        .top-nav .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .top-nav .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.9rem;
+        }
+        .top-nav .nav-links a:hover {
+            color: #38bdf8;
+        }
+        .top-nav .nav-links .btn {
+            padding: 6px 16px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .top-nav .nav-links .btn-outline {
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+        .top-nav .nav-links .btn-outline:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        .top-nav .nav-links .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .top-nav .nav-links .btn-primary:hover {
+            background: #2563eb;
+        }
+        .top-nav .nav-links .username-display {
+            color: #38bdf8;
+            font-weight: 500;
+        }
+        /* 主内容区域 */
+        .main-layout {
+            display: flex;
+            gap: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .content {
+            flex: 3;
+        }
+        .sidebar {
+            flex: 1;
+            min-width: 260px;
+        }
+        .sidebar-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .sidebar-card h3 {
+            color: #38bdf8;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #334155;
+        }
         .search-bar {
             display: flex;
             gap: 12px;
@@ -75,24 +170,203 @@
             color: #6b7280;
             margin-bottom: 16px;
         }
+        .blueprint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .blueprint-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .blueprint-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+        }
+        .blueprint-title {
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .blueprint-desc {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .blueprint-meta {
+            color: #6b7280;
+            font-size: 0.75rem;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .blueprint-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+        .blueprint-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .blueprint-link:hover {
+            text-decoration: underline;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+        .page-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .page-btn:hover:not(.active) {
+            background: #2a2a2a;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        .friend-link {
+            display: block;
+            padding: 8px 0;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+            border-bottom: 1px solid #2a3a5a;
+        }
+        .friend-link:hover {
+            color: #38bdf8;
+        }
+        .announcement {
+            font-size: 0.85rem;
+            color: #cbd5e6;
+            line-height: 1.5;
+        }
+        .announcement-date {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .hot-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #2a3a5a;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .hot-item:hover {
+            background: #0f172a;
+            margin: 0 -8px;
+            padding: 10px 8px;
+            border-radius: 8px;
+        }
+        .hot-rank {
+            width: 28px;
+            height: 28px;
+            background: #0f172a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        .hot-rank.top1 { background: #f97316; color: white; }
+        .hot-rank.top2 { background: #3b82f6; color: white; }
+        .hot-rank.top3 { background: #22c55e; color: white; }
+        .hot-info {
+            flex: 1;
+        }
+        .hot-title {
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .hot-meta {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                order: -1;
+            }
+            .blueprint-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-select {
+                width: 100%;
+            }
+            .top-nav {
+                padding: 12px 16px;
+            }
+            .top-nav .nav-links {
+                gap: 12px;
+            }
+            .top-nav .nav-links a {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- ===== 顶部导航栏（保留） ===== -->
-    <nav class="navbar">
+
+    <!-- ===== 顶部导航栏 ===== -->
+    <nav class="top-nav">
         <div class="logo">
             Create<span>Mechanical</span>
         </div>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">首页</a>
-            <a href="publish.html" class="nav-link">发布蓝图</a>
-            <a href="profile.html" class="nav-link">我的发布</a>
-            <a href="apps.html" class="nav-link">小应用</a>
-            <a href="login.html" class="btn btn-outline">登录</a>
-            <a href="register.html" class="btn btn-primary">注册</a>
+        <div class="nav-links" id="topNavLinks">
+            <a href="index.html">首页</a>
+            <a href="publish.html">发布蓝图</a>
+            <a href="apps.html">小应用</a>
+            <a href="login.html" id="navLoginBtn" class="btn btn-outline">登录</a>
+            <a href="register.html" id="navRegisterBtn" class="btn btn-primary">注册</a>
         </div>
     </nav>
 
+    <!-- ===== 主内容 ===== -->
     <div class="main-layout">
         <div class="content">
             <h1 style="margin-bottom: 8px;">机械动力蓝图分享</h1>
@@ -147,7 +421,7 @@
             <div id="pagination" class="pagination"></div>
         </div>
 
-        <!-- 侧边栏 -->
+        <!-- 右侧边栏 -->
         <div class="sidebar">
             <div class="sidebar-card">
                 <h3>热门榜</h3>
@@ -167,7 +441,7 @@
             <div class="sidebar-card">
                 <h3>公告</h3>
                 <div id="announcement">
-                    <div class="announcement-date">2026年6月15日</div>
+                    <div class="announcement-date">2026年6月18日</div>
                     <div class="announcement">
                         欢迎来到机械动力蓝图分享社区！<br><br>
                         发布蓝图请先登录<br>
@@ -182,6 +456,38 @@
 
     <script src="script.js"></script>
     <script>
+        // ===== 顶部导航栏登录状态 =====
+        function updateTopNav() {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+            const navLinks = document.getElementById('topNavLinks');
+            
+            if (token && username) {
+                navLinks.innerHTML = `
+                    <a href="index.html">首页</a>
+                    <a href="publish.html">发布蓝图</a>
+                    <a href="apps.html">小应用</a>
+                    <a href="user.html?user=${username}" class="username-display">${escapeHtml(username)}</a>
+                    <button class="btn btn-outline" onclick="logout()">退出</button>
+                `;
+            } else {
+                navLinks.innerHTML = `
+                    <a href="index.html">首页</a>
+                    <a href="publish.html">发布蓝图</a>
+                    <a href="apps.html">小应用</a>
+                    <a href="login.html" class="btn btn-outline">登录</a>
+                    <a href="register.html" class="btn btn-primary">注册</a>
+                `;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            location.reload();
+        }
+
+        // ===== 其他原有 JS =====
         let currentKeyword = '';
         let currentMcVersion = '';
         let currentCreateVersion = '';
@@ -218,9 +524,9 @@
                             <div class="blueprint-card">
                                 ${bp.preview_image ? `<img src="${bp.preview_image}" class="blueprint-image" alt="${escapeHtml(bp.title)}">` : ''}
                                 <div class="blueprint-title">${escapeHtml(bp.title)}</div>
-                                <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
+                                <div class="blueprint-desc">${escapeHtml(bp.description || '暂无描述')}</div>
                                 <div class="blueprint-meta">
-                                    <span>发布者: ${escapeHtml(bp.username)}</span>
+                                    <span>发布者: <a href="user.html?user=${bp.username}" style="color: #3b82f6; text-decoration: none;">${escapeHtml(bp.username)}</a></span>
                                     <span>${formatDate(bp.upload_time || bp.created_at)}</span>
                                 </div>
                                 <div class="blueprint-versions">
@@ -287,7 +593,7 @@
                                 <div class="hot-rank ${rankClass}">${index + 1}</div>
                                 <div class="hot-info">
                                     <div class="hot-title">${escapeHtml(item.title)}</div>
-                                    <div class="hot-meta">点赞 ${item.likes || 0} · 浏览 ${item.views || 0} · ${escapeHtml(item.mc_version || '?')}/${escapeHtml(item.create_version || '?')}</div>
+                                    <div class="hot-meta">❤️ ${item.likes || 0} · 👁️ ${item.views || 0} · ${escapeHtml(item.mc_version || '?')}/${escapeHtml(item.create_version || '?')}</div>
                                 </div>
                             </a>
                         `;
@@ -355,6 +661,8 @@
             return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
         }
 
+        // ===== 初始化 =====
+        updateTopNav();
         loadBlueprints();
         loadHotList();
     </script>

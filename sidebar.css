@@ -15,7 +15,7 @@
     border: 1px solid rgba(51, 65, 85, 0.5);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     width: 48px;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), align-items 0.3s ease;
     overflow: hidden;
     align-items: center;
 }
@@ -187,6 +187,7 @@
     .floating-sidebar .nav-item .icon {
         width: 22px;
         height: 22px;
+        flex-shrink: 0;
     }
 
     .floating-sidebar .nav-item .icon svg {
