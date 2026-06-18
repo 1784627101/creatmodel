@@ -46,9 +46,21 @@
             box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
         }
         .app-card .app-icon {
-            font-size: 2rem;
+            width: 64px;
+            height: 64px;
             margin-bottom: 12px;
-            color: #38bdf8;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #334155;
+        }
+        .app-card .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .app-card .app-title {
             color: #e2e8f0;
@@ -80,24 +92,6 @@
         .back-link:hover {
             color: #38bdf8;
         }
-        .app-card.coming-soon {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .app-card.coming-soon:hover {
-            transform: none;
-            border-color: #334155;
-            box-shadow: none;
-        }
-        .coming-badge {
-            background: #f97316;
-            color: white;
-            font-size: 0.6rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
         @media (max-width: 768px) {
             .apps-grid {
                 grid-template-columns: 1fr;
@@ -112,46 +106,19 @@
 
         <div class="apps-header">
             <h1>小应用</h1>
-            <p>机械动力工具集，持续更新中</p>
+            <p>机械动力工具集</p>
         </div>
 
         <div class="apps-grid">
             <!-- 火炮计算器 -->
             <a href="cannon-calc.html" class="app-card">
-                <div class="app-icon">⚡</div>
+                <div class="app-icon">
+                    <img src="https://i.mcmod.cn/item/icon/128x128/63/632535.png?v=2" alt="火炮底座">
+                </div>
                 <div class="app-title">火炮计算器</div>
                 <div class="app-desc">计算火炮材质是否扛得住发射药，是否会发生卡膛</div>
                 <div class="app-tag">已上线</div>
             </a>
-
-            <!-- 预留更多应用 -->
-            <div class="app-card coming-soon">
-                <div class="app-icon">📐</div>
-                <div class="app-title">蓝图大小估算器</div>
-                <div class="app-desc">根据方块数估算蓝图文件和加载时间</div>
-                <div class="app-tag">开发中 <span class="coming-badge">Coming</span></div>
-            </div>
-
-            <div class="app-card coming-soon">
-                <div class="app-icon">⚙️</div>
-                <div class="app-title">应力计算器</div>
-                <div class="app-desc">计算机械动力机器的应力消耗与产生</div>
-                <div class="app-tag">开发中 <span class="coming-badge">Coming</span></div>
-            </div>
-
-            <div class="app-card coming-soon">
-                <div class="app-icon">🔧</div>
-                <div class="app-title">齿轮比例计算器</div>
-                <div class="app-desc">计算转速与扭矩的转换比例</div>
-                <div class="app-tag">开发中 <span class="coming-badge">Coming</span></div>
-            </div>
-
-            <div class="app-card coming-soon">
-                <div class="app-icon">📦</div>
-                <div class="app-title">蓝图压缩工具</div>
-                <div class="app-desc">在线压缩和优化 .nbt 蓝图文件</div>
-                <div class="app-tag">开发中 <span class="coming-badge">Coming</span></div>
-            </div>
         </div>
     </div>
 
