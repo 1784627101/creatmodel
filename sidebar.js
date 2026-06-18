@@ -27,7 +27,7 @@
                 </span>
                 <span class="label">发布蓝图</span>
             </a>
-            <a href="user.html" class="nav-item" data-page="profile" id="profileNavItem">
+            <a href="profile.html" class="nav-item" data-page="profile">
                 <span class="icon">
                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>
@@ -49,6 +49,7 @@
         </nav>
     `;
 
+    // 只在侧边栏不存在时注入
     if (!document.getElementById('floatingSidebar')) {
         document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
     }
@@ -69,21 +70,16 @@
     const loginLabel = document.getElementById('loginLabel');
     if (token && username) {
         loginLabel.textContent = username;
-        loginItem.href = 'user.html?user=' + username;
+        loginItem.href = 'profile.html';
     } else {
         loginLabel.textContent = '登录';
         loginItem.href = 'login.html';
-    }
-
-    // 更新「我的蓝图」链接
-    const profileLink = document.getElementById('profileNavItem');
-    if (profileLink && username) {
-        profileLink.href = 'user.html?user=' + username;
     }
 })();
 
 // 3. 自定义背景上传
 (function initBg() {
+    // 加载保存的背景
     function loadBg() {
         const savedBg = localStorage.getItem('customBg');
         if (savedBg) {
@@ -116,6 +112,7 @@
     }
     loadBg();
 
+    // 背景上传按钮
     if (!document.querySelector('.bg-upload-btn')) {
         const uploadBtn = document.createElement('div');
         uploadBtn.className = 'bg-upload-btn';
@@ -128,6 +125,7 @@
         `;
         document.body.appendChild(uploadBtn);
 
+        // 上传事件
         document.getElementById('bgUpload')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -145,6 +143,7 @@
             reader.readAsDataURL(file);
         });
 
+        // 双击清除背景
         uploadBtn.addEventListener('dblclick', function() {
             if (confirm('确定要清除自定义背景吗？')) {
                 localStorage.removeItem('customBg');
