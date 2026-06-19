@@ -6,6 +6,8 @@
     <title>注册 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <nav class="navbar">
@@ -42,15 +44,10 @@
                     <input type="email" id="email" placeholder="example@domain.com">
                 </div>
 
-                <!-- 人机验证 -->
+                <!-- Turnstile 人机验证 -->
                 <div class="form-group">
-                    <label>验证码 *</label>
-                    <div class="captcha-row">
-                        <input type="text" id="captchaInput" placeholder="请输入验证码" required>
-                        <div class="captcha-img" id="captchaText" onclick="refreshCaptcha()">------</div>
-                    </div>
-                    <div class="field-note">请输入人机验证码。</div>
-                    <div id="captchaError" class="error"></div>
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAADJ8FUL5FsPg34ng" data-callback="onTurnstileSuccess"></div>
+                    <div id="turnstileError" class="error" style="display: none;">请完成人机验证</div>
                 </div>
                 
                 <!-- 协议勾选 -->
@@ -191,25 +188,12 @@
     <script src="script.js"></script>
     
     <script>
-        // 人机验证码
-        let currentCaptcha = '';
+        let turnstileToken = null;
         
-        function generateCaptcha() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-            let captcha = '';
-            for (let i = 0; i < 6; i++) {
-                captcha += chars[Math.floor(Math.random() * chars.length)];
-            }
-            return captcha;
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+            document.getElementById('turnstileError').style.display = 'none';
         }
-        
-        function refreshCaptcha() {
-            currentCaptcha = generateCaptcha();
-            const captchaEl = document.getElementById('captchaText');
-            if (captchaEl) captchaEl.innerText = currentCaptcha;
-        }
-        
-        refreshCaptcha();
         
         // 协议弹窗
         document.getElementById('showAgreement').addEventListener('click', (e) => {
@@ -255,11 +239,15 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            if (!turnstileToken) {
+                document.getElementById('turnstileError').style.display = 'block';
+                return;
+            }
+            
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const email = document.getElementById('email').value.trim();
-            const captchaInput = document.getElementById('captchaInput').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
             
             if (username.length < 3) {
@@ -272,11 +260,6 @@
             }
             if (password !== confirmPassword) {
                 showMessage('两次输入的密码不一致', 'error');
-                return;
-            }
-            if (captchaInput !== currentCaptcha) {
-                document.getElementById('captchaError').textContent = '验证码错误';
-                refreshCaptcha();
                 return;
             }
             if (!agreeTerms) {
@@ -292,7 +275,8 @@
                         username, 
                         password, 
                         email: email || '',
-                        agreedTosVersion: 'v1.0'
+                        agreedTosVersion: 'v1.0',
+                        token: turnstileToken
                     })
                 });
                 const result = await response.json();
