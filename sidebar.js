@@ -39,6 +39,13 @@
                 </span>
                 <span class="label">小应用</span>
             </a>
+            <!-- 反馈按钮（蓝色突出） -->
+            <a href="https://www.ifdian.net/group/e832489c6d2211f1a55652540025c377?utm_source=copylink&utm_medium=link" target="_blank" class="nav-item" id="feedbackNavItem" data-page="feedback" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.25); margin: 0 6px; border-radius: 10px;">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" style="fill: none; stroke: #3b82f6;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                </span>
+                <span class="label" style="color: #3b82f6;">反馈</span>
+            </a>
             <div class="divider"></div>
             <!-- 赞助按钮（紫色突出） -->
             <a href="https://www.ifdian.net/project/2d9ec3e06d2011f1b4e352540025c377" target="_blank" class="nav-item" id="sponsorNavItem" data-page="sponsor" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); margin: 0 6px; border-radius: 10px;">
