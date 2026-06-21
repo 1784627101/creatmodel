@@ -41,7 +41,7 @@
             </a>
             <div class="divider"></div>
             <!-- 赞助按钮（紫色突出） -->
-            <a href="https://www.ifdian.net/a/creatmodel" target="_blank" class="nav-item" id="sponsorNavItem" data-page="sponsor" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); margin: 0 6px; border-radius: 10px;">
+            <a href="https://www.ifdian.net/project/2d9ec3e06d2011f1b4e352540025c377" target="_blank" class="nav-item" id="sponsorNavItem" data-page="sponsor" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); margin: 0 6px; border-radius: 10px;">
                 <span class="icon">
                     <svg viewBox="0 0 24 24" style="fill: #a855f7; stroke: #a855f7;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 </span>
