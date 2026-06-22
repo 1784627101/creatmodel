@@ -130,11 +130,10 @@
                                     <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
                                     <div class="blueprint-meta">
                                         <span>${formatDate(bp.upload_time || bp.created_at)}</span>
-                                        <span>浏览 ${bp.views || 0}</span>
-                                        <span>点赞 ${bp.likes || 0}</span>
                                     </div>
                                     <div class="blueprint-status">
                                         状态: <span class="status-badge ${statusClass}">${statusText}</span>
+                                        <span>下载 ${bp.downloads || 0}</span>
                                     </div>
                                     <div class="card-actions">
                                         <a href="blueprint.html?id=${bp.id}" class="blueprint-link">查看详情 →</a>

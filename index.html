@@ -248,6 +248,9 @@
                                 <div class="blueprint-versions">
                                     MC: ${escapeHtml(bp.mc_version || '?')} | Create: ${escapeHtml(bp.create_version || '?')}
                                 </div>
+                                <div class="blueprint-stats">
+                                    <span>下载 ${bp.downloads || 0}</span>
+                                </div>
                                 <a href="blueprint.html?id=${bp.id}" class="blueprint-link">查看详情 →</a>
                             </div>
                         `;
