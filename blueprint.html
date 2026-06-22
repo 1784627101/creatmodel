@@ -20,6 +20,27 @@
             font-size: 0.85rem;
             color: #9ca3af;
         }
+        .mod-tag {
+            background: #0f172a;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            border: 1px solid #334155;
+        }
+        .detail-mods {
+            margin: 16px 0;
+        }
+        .detail-mods .mods-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .detail-mods .no-mods {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +80,18 @@
     <script>
         let currentBlueprint = null;
         
+        // 解析描述，提取模组和正文
+        function parseMods(description) {
+            if (!description) return { mods: [], text: '' };
+            const match = description.match(/^【模组：([^】]+)】/);
+            if (match) {
+                const mods = match[1].split(/[、，,]+/).map(m => m.trim());
+                const text = description.replace(/^【模组：[^】]+】\n?/, '');
+                return { mods, text };
+            }
+            return { mods: [], text: description };
+        }
+        
         async function loadBlueprint() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
@@ -88,6 +121,7 @@
             const container = document.getElementById('detailContainer');
             const loggedIn = isLoggedIn();
             const isOwner = loggedIn && localStorage.getItem('username') === bp.username;
+            const parsed = parseMods(bp.description);
             
             container.innerHTML = `
                 <div class="detail-card">
@@ -100,17 +134,31 @@
                     <div class="detail-versions">
                         MC版本: ${escapeHtml(bp.mc_version || '未指定')} | Create版本: ${escapeHtml(bp.create_version || '未指定')}
                     </div>
+                    
+                    <!-- 用到的模组 -->
+                    <div class="detail-mods">
+                        <h3>用到的模组</h3>
+                        <div class="mods-container">
+                            ${parsed.mods.length > 0 ? 
+                                parsed.mods.map(mod => 
+                                    `<span class="mod-tag">${escapeHtml(mod)}</span>`
+                                ).join('') : 
+                                '<span class="no-mods">未指定</span>'
+                            }
+                        </div>
+                    </div>
+                    
                     <div class="detail-description">
                         <h3>描述</h3>
-                        <p>${escapeHtml(bp.description || '暂无描述')}</p>
+                        <p>${escapeHtml(parsed.text || '暂无描述')}</p>
                     </div>
                     <div class="detail-link">
                         <h3>下载链接</h3>
                         ${loggedIn ? 
-                           `<a href="${escapeHtml(bp.original_link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block;" onclick="recordDownload()">点击下载</a>
-                            <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280; word-break: break-all;">链接：${escapeHtml(bp.original_link)}</p>
-                            <p style="margin-top: 4px; font-size: 0.7rem; color: #64748b;">下载量：${bp.downloads || 0}</p>` : 
-                           `<p style="color: #f97316; padding: 12px; background: #2a2a2a; border-radius: 8px;">
+                            `<a href="${escapeHtml(bp.original_link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block;" onclick="recordDownload()">点击下载</a>
+                             <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280; word-break: break-all;">链接：${escapeHtml(bp.original_link)}</p>
+                             <p style="margin-top: 4px; font-size: 0.7rem; color: #64748b;">下载量：${bp.downloads || 0}</p>` : 
+                            `<p style="color: #f97316; padding: 12px; background: #2a2a2a; border-radius: 8px;">
                                 请先 <a href="login.html" style="color: #3b82f6;">登录</a> 后查看下载链接
                              </p>`
                         }
@@ -186,30 +234,28 @@
             }
         }
         
+        async function recordDownload() {
+            if (!currentBlueprint) return;
+            try {
+                await fetch(`${API_URL}/blueprints/${currentBlueprint.id}/download`, {
+                    method: 'POST'
+                });
+                currentBlueprint.downloads = (currentBlueprint.downloads || 0) + 1;
+                const downloadEl = document.querySelector('.detail-link p:last-child');
+                if (downloadEl) {
+                    downloadEl.textContent = `下载量：${currentBlueprint.downloads}`;
+                }
+            } catch (error) {
+                console.error('记录下载失败:', error);
+            }
+        }
+        
         window.addEventListener('click', (e) => {
             const modal = document.getElementById('reportModal');
             if (e.target === modal) {
                 closeReportModal();
             }
         });
-
-        async function recordDownload() {
-            if (!currentBlueprint) return;
-            try {
-                await fetch(`${API_URL}/blueprints/${currentBlueprint.id}/download`, {
-                method: 'POST'
-                });
-                // 更新页面显示的下载量
-                currentBlueprint.downloads = (currentBlueprint.downloads || 0) + 1;
-                // 更新显示
-                const downloadEl = document.querySelector('.detail-link p:last-child');
-                if (downloadEl) {
-                    downloadEl.textContent = `下载量：${currentBlueprint.downloads}`;
-                }
-             } catch (error) {
-                console.error('记录下载失败:', error);
-            }
-        }
         
         updateNavbar();
         loadBlueprint();

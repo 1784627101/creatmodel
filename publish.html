@@ -41,6 +41,19 @@
                     <textarea id="description" rows="4" placeholder="描述你的蓝图功能、使用说明等"></textarea>
                 </div>
                 
+                <!-- 用到的模组 -->
+                <div class="form-group">
+                    <label>用到的模组</label>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                        <input type="text" id="modInput" placeholder="输入模组名称" style="flex:1; min-width:150px; padding:10px 14px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0;">
+                        <button type="button" id="addModBtn" class="btn btn-outline" style="padding:10px 16px;">添加</button>
+                        <button type="button" id="clearModsBtn" class="btn btn-outline" style="padding:10px 16px; border-color:#ef4444; color:#ef4444;">清空</button>
+                    </div>
+                    <div id="modTagsContainer" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;"></div>
+                    <input type="hidden" id="modsListHidden" value="">
+                    <small style="color: #6b7280;">输入模组名称，点击添加，支持多个模组</small>
+                </div>
+                
                 <!-- 图片上传 -->
                 <div class="form-group">
                     <label>预览图（可选）</label>
@@ -103,7 +116,7 @@
         </div>
     </main>
 
-    <!-- 免责声明弹窗（完整版） -->
+    <!-- 免责声明弹窗 -->
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
@@ -144,6 +157,69 @@
         
         // ImgBB API Key
         const IMGBB_API_KEY = '0bb35dd01d42e7df850d535d2c79e8f6';
+        
+        // ===== 模组标签管理 =====
+        const modInput = document.getElementById('modInput');
+        const addModBtn = document.getElementById('addModBtn');
+        const clearModsBtn = document.getElementById('clearModsBtn');
+        const modTagsContainer = document.getElementById('modTagsContainer');
+        const modsListHidden = document.getElementById('modsListHidden');
+        let modsList = [];
+
+        function renderModTags() {
+            if (modsList.length === 0) {
+                modTagsContainer.innerHTML = '<span style="color:#64748b; font-size:0.85rem;">暂无模组，请添加</span>';
+                modsListHidden.value = '';
+                return;
+            }
+            let html = '';
+            modsList.forEach((mod, index) => {
+                html += `
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#0f172a; padding:4px 12px; border-radius:20px; border:1px solid #334155; font-size:0.85rem; color:#38bdf8;">
+                        ${escapeHtml(mod)}
+                        <span onclick="removeMod(${index})" style="cursor:pointer; color:#ef4444; font-size:0.7rem;">✕</span>
+                    </span>
+                `;
+            });
+            modTagsContainer.innerHTML = html;
+            modsListHidden.value = modsList.join(', ');
+        }
+
+        function removeMod(index) {
+            modsList.splice(index, 1);
+            renderModTags();
+        }
+
+        addModBtn.addEventListener('click', function() {
+            const modName = modInput.value.trim();
+            if (!modName) {
+                alert('请输入模组名称');
+                return;
+            }
+            if (modsList.includes(modName)) {
+                alert('模组已存在');
+                modInput.value = '';
+                return;
+            }
+            modsList.push(modName);
+            modInput.value = '';
+            renderModTags();
+        });
+
+        modInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addModBtn.click();
+            }
+        });
+
+        clearModsBtn.addEventListener('click', function() {
+            if (modsList.length === 0) return;
+            if (confirm('确定清空所有模组吗？')) {
+                modsList = [];
+                renderModTags();
+            }
+        });
         
         function checkLogin() {
             const loggedIn = isLoggedIn();
@@ -232,6 +308,7 @@
             }
         });
         
+        // 发布表单提交
         document.getElementById('publishForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -276,6 +353,12 @@
                 return;
             }
             
+            // 构建完整描述（模组 + 原描述）
+            let fullDescription = description || '';
+            if (modsList.length > 0) {
+                fullDescription = '【模组：' + modsList.join('、') + '】' + (fullDescription ? '\n' + fullDescription : '');
+            }
+            
             isSubmitting = true;
             submitBtn.textContent = '发布中...';
             submitBtn.disabled = true;
@@ -285,7 +368,7 @@
                     method: 'POST',
                     body: JSON.stringify({ 
                         title, 
-                        description, 
+                        description: fullDescription,
                         link,
                         mcVersion,
                         createVersion,
