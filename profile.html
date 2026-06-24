@@ -13,12 +13,13 @@
             padding: 40px 24px;
         }
 
+        /* ===== 头像 + 背景 ===== */
         .profile-header {
             position: relative;
             background: #1e293b;
             border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 32px;
+            overflow: visible;      /* ✅ 允许头像溢出 */
+            margin-bottom: 50px;    /* ✅ 为溢出的头像留空间 */
             border: 1px solid #334155;
         }
 
@@ -29,7 +30,8 @@
             background-size: cover;
             background-position: center;
             background-color: #1e293b;
-            position: relative;
+            border-radius: 16px 16px 0 0;  /* 只有上方圆角 */
+            overflow: hidden;               /* 防止背景图撑破圆角 */
         }
 
         .profile-bg img {
@@ -49,6 +51,7 @@
             background: #0f172a;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 10;            /* ✅ 确保在最上层 */
         }
 
         .profile-avatar img {
@@ -107,6 +110,7 @@
             font-size: 0.8rem;
         }
 
+        /* ===== 编辑弹窗 ===== */
         .edit-modal {
             display: none;
             position: fixed;
@@ -187,6 +191,7 @@
             margin-top: 20px;
         }
 
+        /* ===== 蓝图列表 ===== */
         .blueprint-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -206,21 +211,23 @@
             color: #94a3b8;
         }
 
+        /* ===== 移动端适配 ===== */
         @media (max-width: 768px) {
+            .profile-bg {
+                height: 140px;          /* 移动端背景矮一点 */
+            }
             .profile-avatar {
                 left: 20px;
                 width: 70px;
                 height: 70px;
-                bottom: -30px;
+                bottom: -30px;          /* 配合更小的头像 */
+                border-width: 3px;
             }
             .profile-info {
                 padding: 50px 20px 20px 20px;
             }
             .profile-info .username {
                 font-size: 1.3rem;
-            }
-            .profile-bg {
-                height: 120px;
             }
         }
     </style>
@@ -301,7 +308,9 @@
                     const res = await authFetch('/verify');
                     const data = await res.json();
                     if (data.success) myId = data.data.userId;
-                } catch (e) {}
+                } catch (e) {
+                    console.warn('获取当前用户ID失败:', e);
+                }
             }
 
             let userId = targetId;
@@ -340,8 +349,8 @@
         function renderProfile(user, blueprints, isOwner) {
             const container = document.getElementById('profileContent');
 
-            const avatarHtml = user.avatar 
-                ? `<img src="${user.avatar}" alt="avatar">` 
+            const avatarHtml = user.avatar
+                ? `<img src="${user.avatar}" alt="avatar">`
                 : `<div class="default-avatar">${user.username.charAt(0).toUpperCase()}</div>`;
 
             const bgStyle = user.bg_image ? `background-image: url(${user.bg_image});` : '';
@@ -410,6 +419,7 @@
             document.getElementById('editModal').classList.remove('show');
         }
 
+        // ===== 图片上传 =====
         document.getElementById('avatarUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -451,6 +461,7 @@
             });
         }
 
+        // ===== 保存资料 =====
         async function saveProfile() {
             const avatar = document.getElementById('avatarUrl').value.trim();
             const bg_image = document.getElementById('bgUrl').value.trim();
@@ -474,10 +485,12 @@
             }
         }
 
+        // ===== 点击弹窗背景关闭 =====
         document.getElementById('editModal').addEventListener('click', function(e) {
             if (e.target === this) closeEditModal();
         });
 
+        // ===== 初始化 =====
         updateNavbar();
         loadProfile();
     </script>
