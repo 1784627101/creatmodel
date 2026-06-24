@@ -85,6 +85,7 @@
         .value-pass { color: #22c55e; }
         .value-fail { color: #ef4444; }
         .value-warn { color: #f97316; }
+        .value-missing { color: #64748b; }
         .btn-calc {
             width: 100%;
             padding: 14px;
@@ -189,7 +190,7 @@
 
         <div class="calc-card">
             <h1>火炮计算器</h1>
-            <div class="subtitle">基于 Create Big Cannons 模组真实机制</div>
+            <div class="subtitle">基于 Create Big Cannons 模组真实机制（修正版 v2）</div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -251,6 +252,10 @@
                     <span class="value" id="breechStrength">-</span>
                 </div>
                 <div class="result-item">
+                    <span class="label">火炮整体强度上限</span>
+                    <span class="value" id="overallStrength">-</span>
+                </div>
+                <div class="result-item">
                     <span class="label">炮弹初速</span>
                     <span class="value" id="shellVelocity">-</span>
                 </div>
@@ -261,10 +266,6 @@
                 <div class="result-item">
                     <span class="label">发射药推进力</span>
                     <span class="value" id="propulsionForce">-</span>
-                </div>
-                <div class="result-item">
-                    <span class="label">最小强度需求</span>
-                    <span class="value" id="minStrengthRequired">-</span>
                 </div>
                 <div class="result-item">
                     <span class="label">状态</span>
@@ -278,17 +279,18 @@
 
             <div class="info-note">
                 数据来源：<a href="https://www.mcmod.cn/" target="_blank">MC百科</a> · 
-                发射药每格提供 40m/s 初速并产生 1 推进力[reference:6]<br>
-                大型弹药每级装药提供 40m/s 初速并产生 0.5 推进力，最大 4 级[reference:7]
+                发射药每格提供 40m/s 初速并产生 1 推进力<br>
+                大型弹药每级装药提供 40m/s 初速并产生 0.5 推进力，最大 4 级<br>
+                <strong>炮闩强度取两者较小值作为整体强度上限</strong>
             </div>
-            <div class="data-source">材质强度：木头1 / 铸铁2 / 青铜4 / 钢6 / 下界钢8[reference:8]</div>
+            <div class="data-source">材质强度：木头1 / 铸铁2 / 青铜4 / 钢6 / 下界钢8</div>
         </div>
     </div>
 
     <script>
         // ===== 真实游戏数据（来自 MC百科）=====
 
-        // 材质强度与每格炮管需求初速[reference:9]
+        // 材质强度与每格炮管需求初速
         const MATERIAL_DATA = {
             wood: {
                 label: '木头',
@@ -322,15 +324,51 @@
             }
         };
 
-        // 炮闩强度[reference:10]
+        // 炮闩强度（完整数据表，null = 数据缺失）
         const BREECH_DATA = {
-            simple: { label: '普通炮尾', strengths: { cast_iron: 1, bronze: 2, steel: 4 } },
-            quick_fire: { label: '速射炮闩', strengths: { cast_iron: 2, bronze: 2, steel: 2 } },
-            wedge: { label: '楔式炮闩', strengths: { cast_iron: null, bronze: 2, steel: 4 } },
-            screw: { label: '螺式炮闩', strengths: { cast_iron: null, bronze: null, steel: 6 } }
+            simple: {
+                label: '普通炮尾',
+                strengths: {
+                    wood: null,
+                    cast_iron: 2,
+                    bronze: 4,
+                    steel: 6,
+                    nethersteel: null
+                }
+            },
+            quick_fire: {
+                label: '速射炮闩',
+                strengths: {
+                    wood: null,
+                    cast_iron: 2,
+                    bronze: 2,
+                    steel: 2,
+                    nethersteel: null
+                }
+            },
+            wedge: {
+                label: '楔式炮闩',
+                strengths: {
+                    wood: null,
+                    cast_iron: null,  // MC百科有页面但无具体强度数据
+                    bronze: 2,
+                    steel: 4,
+                    nethersteel: null
+                }
+            },
+            screw: {
+                label: '螺式炮闩',
+                strengths: {
+                    wood: null,
+                    cast_iron: null,  // 无数据
+                    bronze: null,     // 无数据
+                    steel: 6,
+                    nethersteel: 8
+                }
+            }
         };
 
-        // 弹药数据[reference:11]
+        // 弹药数据
         const AMMO_DATA = {
             powder_charge: {
                 label: '发射药',
@@ -359,74 +397,91 @@
 
             // 获取炮闩强度
             let breechStrength = breech.strengths[material];
-            if (breechStrength === null || breechStrength === undefined) {
-                breechStrength = 0;
+            const hasBreechData = breechStrength !== null && breechStrength !== undefined;
+
+            // 炮身强度
+            const matStrength = mat.strength;
+
+            // 计算火炮整体强度上限 = min(炮身强度, 炮闩强度)
+            let overallStrength = null;
+            if (hasBreechData) {
+                overallStrength = Math.min(matStrength, breechStrength);
             }
 
-            // 计算炮管所需初速 = 每格需求初速 × 炮管格数[reference:12]
+            // 计算炮管所需初速 = 每格需求初速 × 炮管格数
             const requiredVelocity = mat.velocityPerBlock * barrelLength;
 
-            // 计算炮弹初速 = 每单位初速 × 装药数量[reference:13]
+            // 计算炮弹初速 = 每单位初速 × 装药数量
             const shellVelocity = ammo.velocityPerUnit * powderCount;
 
-            // 计算发射药推进力 = 每单位推进力 × 装药数量[reference:14]
+            // 计算发射药推进力 = 每单位推进力 × 装药数量
             const propulsionForce = ammo.forcePerUnit * powderCount;
 
-            // 最小强度需求（取炮身强度和炮闩强度中的较小值，因为两者中任何一个不足都会炸膛）
-            const minStrength = Math.min(mat.strength, breechStrength);
-
-            // 判断状态
+            // ---- 状态判定 ----
             let status = '';
             let statusClass = '';
             let detail = '';
             let detailVisible = false;
 
-            // 检查是否卡弹：炮弹初速小于炮管所需初速[reference:15]
-            if (shellVelocity < requiredVelocity && powderCount > 0) {
-                status = '卡弹';
-                statusClass = 'value-fail';
-                detail = '炮弹初速 (' + shellVelocity.toFixed(1) + 'm/s) 小于炮管所需初速 (' + requiredVelocity.toFixed(1) + 'm/s)，炮弹会卡在炮管中';
+            // 1. 检查炮闩数据是否缺失
+            if (!hasBreechData) {
+                status = '数据缺失';
+                statusClass = 'value-missing';
+                detail = '该材质与炮闩组合在MC百科中暂无强度数据，无法计算';
                 detailVisible = true;
             }
-            // 检查是否炸膛：推进力大于强度[reference:16]
-            else if (propulsionForce > minStrength && powderCount > 0) {
-                status = '炸膛';
-                statusClass = 'value-fail';
-                let weakPart = '';
-                if (mat.strength < breechStrength) {
-                    weakPart = '炮身强度不足 (' + mat.strength + ' < ' + propulsionForce.toFixed(1) + ')';
-                } else if (breechStrength < mat.strength) {
-                    weakPart = '炮闩强度不足 (' + breechStrength + ' < ' + propulsionForce.toFixed(1) + ')';
-                } else {
-                    weakPart = '强度不足 (' + minStrength + ' < ' + propulsionForce.toFixed(1) + ')';
-                }
-                detail = '推进力 (' + propulsionForce.toFixed(1) + ') 大于 ' + weakPart + '，火炮会炸膛';
-                detailVisible = true;
-            }
-            // 装药为0
+            // 2. 装药为0
             else if (powderCount === 0) {
                 status = '无法发射';
                 statusClass = 'value-warn';
                 detail = '没有装填发射药，无法发射';
                 detailVisible = true;
             }
-            // 正常发射
+            // 3. 检查是否卡弹（炮弹初速小于炮管所需初速）
+            else if (shellVelocity < requiredVelocity) {
+                status = '卡弹';
+                statusClass = 'value-fail';
+                detail = '炮弹初速 (' + shellVelocity.toFixed(1) + 'm/s) 小于所需初速 (' + requiredVelocity.toFixed(1) + 'm/s)，弹头会卡在炮管中！强行发射将导致炸膛。';
+                detailVisible = true;
+            }
+            // 4. 检查是否炸膛（推进力 > 整体强度上限）
+            else if (propulsionForce > overallStrength) {
+                status = '炸膛';
+                statusClass = 'value-fail';
+                let weakPart = '';
+                if (matStrength < breechStrength) {
+                    weakPart = '炮身强度 (' + matStrength + ') < 炮闩强度 (' + breechStrength + ')，整体上限为 ' + overallStrength;
+                } else if (breechStrength < matStrength) {
+                    weakPart = '炮闩强度 (' + breechStrength + ') < 炮身强度 (' + matStrength + ')，整体上限为 ' + overallStrength;
+                } else {
+                    weakPart = '炮身与炮闩强度均为 ' + overallStrength;
+                }
+                detail = '推进力 (' + propulsionForce.toFixed(1) + ') > 整体强度上限 (' + overallStrength + ')，' + weakPart + ' → 炸膛！';
+                detailVisible = true;
+            }
+            // 5. 正常发射
             else {
                 status = '正常发射';
                 statusClass = 'value-pass';
-                const margin = minStrength - propulsionForce;
-                detail = '安全余量: ' + margin.toFixed(1) + ' (强度 ' + minStrength + ' - 推进力 ' + propulsionForce.toFixed(1) + ')';
+                const margin = overallStrength - propulsionForce;
+                detail = '整体强度上限 ' + overallStrength + ' - 推进力 ' + propulsionForce.toFixed(1) + ' = 安全余量 ' + margin.toFixed(1);
                 detailVisible = true;
             }
 
             // 显示结果
             document.getElementById('result').style.display = 'block';
 
-            document.getElementById('matStrength').textContent = mat.label + ' (强度 ' + mat.strength + ')';
+            document.getElementById('matStrength').textContent = mat.label + ' (强度 ' + matStrength + ')';
             document.getElementById('matStrength').className = 'value';
 
-            document.getElementById('breechStrength').textContent = breech.label + (breechStrength > 0 ? ' (强度 ' + breechStrength + ')' : ' (不兼容)');
+            const breechDisplay = hasBreechData
+                ? breech.label + ' (强度 ' + breechStrength + ')'
+                : breech.label + ' (数据缺失)';
+            document.getElementById('breechStrength').textContent = breechDisplay;
             document.getElementById('breechStrength').className = 'value';
+
+            document.getElementById('overallStrength').textContent = hasBreechData ? overallStrength : '数据缺失';
+            document.getElementById('overallStrength').className = hasBreechData ? 'value' : 'value-missing';
 
             document.getElementById('shellVelocity').textContent = shellVelocity.toFixed(1) + ' m/s';
             document.getElementById('shellVelocity').className = 'value';
@@ -436,9 +491,6 @@
 
             document.getElementById('propulsionForce').textContent = propulsionForce.toFixed(1);
             document.getElementById('propulsionForce').className = 'value';
-
-            document.getElementById('minStrengthRequired').textContent = minStrength;
-            document.getElementById('minStrengthRequired').className = 'value';
 
             const statusEl = document.getElementById('status');
             statusEl.textContent = status;
@@ -457,7 +509,6 @@
         // 滑块数值显示
         document.getElementById('powderCount').addEventListener('input', function() {
             document.getElementById('powderCountDisplay').textContent = this.value;
-            // 自动计算
             calculate();
         });
 
