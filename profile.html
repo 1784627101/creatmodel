@@ -3,59 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的发布 - 机械动力蓝图社区</title>
+    <title>个人中心 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
     <style>
-        .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 500;
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
         }
-        .status-active {
-            background: #22c55e;
-            color: white;
+
+        .profile-header {
+            position: relative;
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 32px;
+            border: 1px solid #334155;
         }
-        .status-reported {
-            background: #ef4444;
-            color: white;
+
+        .profile-bg {
+            width: 100%;
+            height: 200px;
+            background: #0f172a;
+            background-size: cover;
+            background-position: center;
+            background-color: #1e293b;
+            position: relative;
         }
-        .status-deleted {
-            background: #6b7280;
-            color: white;
+
+        .profile-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .blueprint-status {
-            margin-top: 8px;
-            font-size: 0.75rem;
+
+        .profile-avatar {
+            position: absolute;
+            bottom: -40px;
+            left: 40px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #1e293b;
+            background: #0f172a;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
-        .delete-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            margin-left: 12px;
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .delete-btn:hover {
-            background: #dc2626;
-        }
-        .card-actions {
+
+        .profile-avatar .default-avatar {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            background: #3b82f6;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .profile-info {
+            padding: 60px 40px 30px 40px;
+        }
+
+        .profile-info .username {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .profile-info .meta {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .profile-info .bio {
             margin-top: 12px;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-width: 600px;
+        }
+
+        .profile-actions {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .profile-actions .btn {
+            padding: 6px 16px;
+            font-size: 0.8rem;
+        }
+
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .edit-modal.show {
+            display: flex;
+        }
+
+        .edit-modal-content {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #2a2a2a;
+        }
+
+        .edit-modal-content h3 {
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .edit-modal-content .form-group {
+            margin-bottom: 16px;
+        }
+
+        .edit-modal-content .form-group label {
+            display: block;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .edit-modal-content .form-group input,
+        .edit-modal-content .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .edit-modal-content .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .edit-modal-content .preview-box {
+            margin-top: 8px;
+            max-width: 120px;
+            max-height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .edit-modal-content .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .edit-modal-content .btn-row {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .blueprint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .profile-avatar {
+                left: 20px;
+                width: 70px;
+                height: 70px;
+                bottom: -30px;
+            }
+            .profile-info {
+                padding: 50px 20px 20px 20px;
+            }
+            .profile-info .username {
+                font-size: 1.3rem;
+            }
+            .profile-bg {
+                height: 120px;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">
-            Create<span>Mechanical</span>
-        </div>
+        <div class="logo">Create<span>Mechanical</span></div>
         <div class="nav-links">
             <a href="index.html" class="nav-link">首页</a>
             <a href="publish.html" class="nav-link">发布蓝图</a>
@@ -65,134 +237,249 @@
         </div>
     </nav>
 
-    <main class="container">
-        <h1 style="margin-bottom: 24px;">我的发布</h1>
-        
-        <div id="profileWarning" style="display: none; background: #2a2a2a; padding: 32px; border-radius: 16px; text-align: center;">
-            <p style="margin-bottom: 16px;">请先登录查看自己的发布</p>
-            <a href="login.html" class="btn btn-primary">立即登录</a>
+    <div class="profile-container">
+        <div id="profileContent">
+            <div class="loading">加载中...</div>
         </div>
-        
-        <div id="blueprintGrid" class="blueprint-grid" style="display: none;"></div>
-    </main>
+    </div>
+
+    <!-- 编辑资料弹窗 -->
+    <div id="editModal" class="edit-modal">
+        <div class="edit-modal-content">
+            <h3>编辑个人资料</h3>
+            <div class="form-group">
+                <label>头像</label>
+                <input type="file" id="avatarUpload" accept="image/*">
+                <div id="avatarPreview" class="preview-box" style="display:none;">
+                    <img id="avatarPreviewImg" src="">
+                </div>
+                <input type="hidden" id="avatarUrl" value="">
+            </div>
+            <div class="form-group">
+                <label>背景图</label>
+                <input type="file" id="bgUpload" accept="image/*">
+                <div id="bgPreview" class="preview-box" style="display:none;">
+                    <img id="bgPreviewImg" src="">
+                </div>
+                <input type="hidden" id="bgUrl" value="">
+            </div>
+            <div class="form-group">
+                <label>个人简介</label>
+                <textarea id="bioInput" placeholder="介绍一下自己..."></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
     <script src="sidebar.js"></script>
     <script>
-        async function loadMyBlueprints() {
+        const IMGBB_API_KEY = '0bb35dd01d42e7df850d535d2c79e8f6';
+        let currentUserId = null;
+        let isOwnProfile = false;
+        let userData = null;
+
+        function getUserIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            return id ? parseInt(id) : null;
+        }
+
+        async function loadProfile() {
+            const container = document.getElementById('profileContent');
+            container.innerHTML = '<div class="loading">加载中...</div>';
+
+            const targetId = getUserIdFromUrl();
             const loggedIn = isLoggedIn();
-            const warning = document.getElementById('profileWarning');
-            const grid = document.getElementById('blueprintGrid');
-            
-            if (!loggedIn) {
-                warning.style.display = 'block';
-                grid.style.display = 'none';
-                return;
+            let myId = null;
+
+            if (loggedIn) {
+                try {
+                    const res = await authFetch('/verify');
+                    const data = await res.json();
+                    if (data.success) myId = data.data.userId;
+                } catch (e) {}
             }
-            
-            warning.style.display = 'none';
-            grid.style.display = 'grid';
-            grid.innerHTML = '<div class="loading">加载中...</div>';
-            
-            try {
-                const response = await fetch(`${API_URL}/blueprints`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    const myBlueprints = result.data.filter(bp => bp.username === localStorage.getItem('username'));
-                    
-                    if (myBlueprints.length > 0) {
-                        grid.innerHTML = '';
-                        for (const bp of myBlueprints) {
-                            let statusClass = '';
-                            let statusText = '';
-                            switch (bp.status) {
-                                case 'active':
-                                    statusClass = 'status-active';
-                                    statusText = '已公开';
-                                    break;
-                                case 'reported':
-                                    statusClass = 'status-reported';
-                                    statusText = '被举报';
-                                    break;
-                                case 'deleted':
-                                    statusClass = 'status-deleted';
-                                    statusText = '已删除';
-                                    break;
-                                default:
-                                    statusClass = 'status-active';
-                                    statusText = '已公开';
-                            }
-                            
-                            grid.innerHTML += `
-                                <div class="blueprint-card" data-id="${bp.id}">
-                                    <div class="blueprint-title">${escapeHtml(bp.title)}</div>
-                                    <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
-                                    <div class="blueprint-meta">
-                                        <span>${formatDate(bp.upload_time || bp.created_at)}</span>
-                                    </div>
-                                    <div class="blueprint-status">
-                                        状态: <span class="status-badge ${statusClass}">${statusText}</span>
-                                        <span>下载 ${bp.downloads || 0}</span>
-                                    </div>
-                                    <div class="card-actions">
-                                        <a href="blueprint.html?id=${bp.id}" class="blueprint-link">查看详情 →</a>
-                                        <button class="delete-btn" onclick="deleteBlueprint(${bp.id})">删除</button>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    } else {
-                        grid.innerHTML = '<div class="empty">你还没有发布过蓝图，去发布第一个吧</div>';
-                    }
+
+            let userId = targetId;
+            if (!userId) {
+                if (loggedIn && myId) {
+                    userId = myId;
                 } else {
-                    grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
+                    container.innerHTML = `
+                        <div class="empty">
+                            <p>请先登录查看个人中心</p>
+                            <a href="login.html" class="btn btn-primary" style="margin-top:12px;display:inline-block;">立即登录</a>
+                        </div>
+                    `;
+                    return;
                 }
+            }
+
+            currentUserId = userId;
+            isOwnProfile = (loggedIn && myId === userId);
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}`);
+                const result = await response.json();
+                if (!result.success) {
+                    container.innerHTML = `<div class="empty">${result.error || '用户不存在'}</div>`;
+                    return;
+                }
+
+                userData = result.data;
+                renderProfile(userData.user, userData.blueprints, isOwnProfile);
             } catch (error) {
-                console.error('加载失败:', error);
-                grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
+                container.innerHTML = `<div class="empty">加载失败：${error.message}</div>`;
             }
         }
-        
-        async function deleteBlueprint(id) {
-            if (!confirm('确定删除这个蓝图吗？此操作不可恢复')) return;
-            
+
+        function renderProfile(user, blueprints, isOwner) {
+            const container = document.getElementById('profileContent');
+
+            const avatarHtml = user.avatar 
+                ? `<img src="${user.avatar}" alt="avatar">` 
+                : `<div class="default-avatar">${user.username.charAt(0).toUpperCase()}</div>`;
+
+            const bgStyle = user.bg_image ? `background-image: url(${user.bg_image});` : '';
+
+            let blueprintsHtml = '';
+            if (blueprints.length === 0) {
+                blueprintsHtml = `<div class="empty">该用户还没有发布蓝图</div>`;
+            } else {
+                blueprintsHtml = '<div class="blueprint-grid">';
+                blueprints.forEach(bp => {
+                    blueprintsHtml += `
+                        <div class="blueprint-card">
+                            ${bp.preview_image ? `<img src="${bp.preview_image}" class="blueprint-image" alt="${escapeHtml(bp.title)}">` : ''}
+                            <div class="blueprint-title">${escapeHtml(bp.title)}</div>
+                            <div class="blueprint-description">${escapeHtml(bp.description || '暂无描述')}</div>
+                            <div class="blueprint-meta">
+                                <span>${formatDate(bp.upload_time)}</span>
+                                <span>下载 ${bp.downloads || 0}</span>
+                            </div>
+                            <div class="blueprint-versions">
+                                MC: ${escapeHtml(bp.mc_version || '?')} | Create: ${escapeHtml(bp.create_version || '?')}
+                            </div>
+                            <a href="blueprint.html?id=${bp.id}" class="blueprint-link">查看详情 →</a>
+                        </div>
+                    `;
+                });
+                blueprintsHtml += '</div>';
+            }
+
+            container.innerHTML = `
+                <div class="profile-header">
+                    <div class="profile-bg" style="${bgStyle}">
+                        ${user.bg_image ? '' : '<div style="height:100%;background:linear-gradient(135deg,#1e293b,#0f172a);"></div>'}
+                    </div>
+                    <div class="profile-avatar">
+                        ${avatarHtml}
+                    </div>
+                    <div class="profile-actions">
+                        ${isOwner ? `<button class="btn btn-primary" onclick="openEditModal()">编辑资料</button>` : ''}
+                    </div>
+                    <div class="profile-info">
+                        <div class="username">${escapeHtml(user.username)}</div>
+                        <div class="meta">注册于 ${formatDate(user.registration_time)}</div>
+                        ${user.bio ? `<div class="bio">${escapeHtml(user.bio)}</div>` : ''}
+                    </div>
+                </div>
+
+                <h2 style="margin: 32px 0 16px; color: #e2e8f0;">发布的蓝图</h2>
+                ${blueprintsHtml}
+            `;
+
+            updateNavbar();
+        }
+
+        function openEditModal() {
+            if (!isOwnProfile) return;
+            document.getElementById('editModal').classList.add('show');
+            document.getElementById('bioInput').value = userData.user.bio || '';
+            document.getElementById('avatarUrl').value = userData.user.avatar || '';
+            document.getElementById('bgUrl').value = userData.user.bg_image || '';
+            document.getElementById('avatarPreview').style.display = 'none';
+            document.getElementById('bgPreview').style.display = 'none';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        document.getElementById('avatarUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            uploadToImgBB(file, (url) => {
+                document.getElementById('avatarUrl').value = url;
+                document.getElementById('avatarPreviewImg').src = url;
+                document.getElementById('avatarPreview').style.display = 'block';
+            });
+        });
+
+        document.getElementById('bgUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            uploadToImgBB(file, (url) => {
+                document.getElementById('bgUrl').value = url;
+                document.getElementById('bgPreviewImg').src = url;
+                document.getElementById('bgPreview').style.display = 'block';
+            });
+        });
+
+        function uploadToImgBB(file, callback) {
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('key', IMGBB_API_KEY);
+            fetch('https://api.imgbb.com/1/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    callback(result.data.url);
+                } else {
+                    alert('上传失败：' + (result.error?.message || '未知错误'));
+                }
+            })
+            .catch(err => {
+                alert('上传失败：' + err.message);
+            });
+        }
+
+        async function saveProfile() {
+            const avatar = document.getElementById('avatarUrl').value.trim();
+            const bg_image = document.getElementById('bgUrl').value.trim();
+            const bio = document.getElementById('bioInput').value.trim();
+
             try {
-                const response = await authFetch(`/blueprints/${id}`, {
-                    method: 'DELETE'
+                const response = await authFetch('/users/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({ avatar, bg_image, bio })
                 });
                 const result = await response.json();
-                
                 if (result.success) {
-                    showMessage('删除成功', 'success');
-                    // 从页面中移除该卡片
-                    const card = document.querySelector(`.blueprint-card[data-id="${id}"]`);
-                    if (card) card.remove();
-                    // 如果没有蓝图了，显示空状态
-                    const remainingCards = document.querySelectorAll('.blueprint-card');
-                    if (remainingCards.length === 0) {
-                        document.getElementById('blueprintGrid').innerHTML = '<div class="empty">你还没有发布过蓝图，去发布第一个吧</div>';
-                    }
+                    showMessage('资料更新成功', 'success');
+                    closeEditModal();
+                    loadProfile();
                 } else {
                     showMessage(result.error, 'error');
                 }
             } catch (error) {
-                showMessage('删除失败: ' + error.message, 'error');
+                showMessage('更新失败：' + error.message, 'error');
             }
         }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-        
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
         updateNavbar();
-        loadMyBlueprints();
+        loadProfile();
     </script>
 </body>
 </html>
