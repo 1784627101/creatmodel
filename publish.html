@@ -6,6 +6,7 @@
     <title>发布蓝图 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <!-- ===== 加载 prismarine-nbt（浏览器版） ===== -->
     <script src="https://cdn.jsdelivr.net/npm/prismarine-nbt@2.2.1/browser.js"></script>
     <style>
         .version-select {
@@ -127,7 +128,7 @@
                     <label>上传蓝图文件（可选，自动解析）</label>
                     <div class="nbt-upload-area" id="nbtDropZone">
                         <div class="icon">📂</div>
-                        <div class="hint">点击选择或拖拽上传(测试测试测试，好像还有问题) <strong>.nbt</strong> 或 <strong>.dat</strong> 文件</div>
+                        <div class="hint">点击选择或拖拽上传（测试，可能没用） <strong>.nbt</strong> 或 <strong>.dat</strong> 文件</div>
                         <input type="file" id="nbtFileInput" accept=".nbt,.dat">
                         <div id="nbtFileName" class="file-name"></div>
                     </div>
@@ -316,7 +317,7 @@
             if (confirm('确定清空所有模组吗？')) { modsList = []; renderModTags(); }
         });
 
-        // ===== NBT 解析 =====
+        // ===== NBT 解析（修复：使用 window.nbt） =====
         const MOD_ID_MAP = {
             'create': '机械动力',
             'createaddition': 'Create Crafts & Additions',
@@ -347,9 +348,18 @@
 
         function parseNBTFile(arrayBuffer) {
             try {
-                const nbt = nbt.parse(arrayBuffer);
-                const root = nbt.value;
-                const parsed = nbt.simplify(root);
+                // ✅ 使用 window.nbt（CDN 暴露的全局对象）
+                const nbtLib = window.nbt || window.NBT;
+                if (!nbtLib) {
+                    throw new Error('NBT 库未加载，请刷新页面重试');
+                }
+                // 解析
+                const parsed = nbtLib.parse(arrayBuffer);
+                // 如果返回的是包含 value 的对象（某些版本）
+                const root = parsed.value || parsed;
+                // 简化（将 Tag 转为 JS 对象）
+                const data = nbtLib.simplify(root);
+
                 let info = {
                     name: '未知',
                     blockCount: 0,
@@ -357,31 +367,32 @@
                     size: { x: 0, y: 0, z: 0 },
                     mods: []
                 };
-                if (parsed.name) info.name = parsed.name;
-                else if (parsed.Name) info.name = parsed.Name;
-                else if (parsed.id && typeof parsed.id === 'string') info.name = parsed.id;
 
-                if (parsed.blockCount !== undefined) info.blockCount = parsed.blockCount;
-                else if (parsed.BlockCount !== undefined) info.blockCount = parsed.BlockCount;
-                else if (parsed.blocks && Array.isArray(parsed.blocks)) info.blockCount = parsed.blocks.length;
+                if (data.name) info.name = data.name;
+                else if (data.Name) info.name = data.Name;
+                else if (data.id && typeof data.id === 'string') info.name = data.id;
 
-                if (parsed.entityCount !== undefined) info.entityCount = parsed.entityCount;
-                else if (parsed.EntityCount !== undefined) info.entityCount = parsed.EntityCount;
-                else if (parsed.entities && Array.isArray(parsed.entities)) info.entityCount = parsed.entities.length;
+                if (data.blockCount !== undefined) info.blockCount = data.blockCount;
+                else if (data.BlockCount !== undefined) info.blockCount = data.BlockCount;
+                else if (data.blocks && Array.isArray(data.blocks)) info.blockCount = data.blocks.length;
 
-                if (parsed.size) {
-                    if (parsed.size.x) info.size.x = parsed.size.x;
-                    if (parsed.size.y) info.size.y = parsed.size.y;
-                    if (parsed.size.z) info.size.z = parsed.size.z;
+                if (data.entityCount !== undefined) info.entityCount = data.entityCount;
+                else if (data.EntityCount !== undefined) info.entityCount = data.EntityCount;
+                else if (data.entities && Array.isArray(data.entities)) info.entityCount = data.entities.length;
+
+                if (data.size) {
+                    if (data.size.x) info.size.x = data.size.x;
+                    if (data.size.y) info.size.y = data.size.y;
+                    if (data.size.z) info.size.z = data.size.z;
                 }
-                if (parsed.Size) {
-                    if (parsed.Size.x) info.size.x = parsed.Size.x;
-                    if (parsed.Size.y) info.size.y = parsed.Size.y;
-                    if (parsed.Size.z) info.size.z = parsed.Size.z;
+                if (data.Size) {
+                    if (data.Size.x) info.size.x = data.Size.x;
+                    if (data.Size.y) info.size.y = data.Size.y;
+                    if (data.Size.z) info.size.z = data.Size.z;
                 }
 
                 const foundMods = new Set();
-                const jsonStr = JSON.stringify(parsed);
+                const jsonStr = JSON.stringify(data);
                 for (const [key, value] of Object.entries(MOD_ID_MAP)) {
                     if (jsonStr.includes(key)) {
                         foundMods.add(value);
@@ -642,6 +653,11 @@
         checkLogin();
         updateNavbar();
         renderModTags();
+
+        // 检测 NBT 库是否加载成功
+        if (typeof window.nbt === 'undefined') {
+            console.warn('prismarine-nbt 库未加载，请检查网络或刷新重试');
+        }
     </script>
 </body>
 </html>
