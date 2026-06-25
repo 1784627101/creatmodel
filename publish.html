@@ -6,12 +6,102 @@
     <title>发布蓝图 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <script src="https://cdn.jsdelivr.net/npm/prismarine-nbt@2.2.1/browser.js"></script>
+    <style>
+        .version-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .version-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .nbt-upload-area {
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            background: #0f172a;
+        }
+        .nbt-upload-area:hover {
+            border-color: #3b82f6;
+        }
+        .nbt-upload-area.dragover {
+            border-color: #22c55e;
+            background: #1a2a3a;
+        }
+        .nbt-upload-area input[type="file"] {
+            display: none;
+        }
+        .nbt-upload-area .icon {
+            font-size: 32px;
+            color: #64748b;
+        }
+        .nbt-upload-area .hint {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        .file-name {
+            color: #22c55e;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .nbt-info {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            display: none;
+        }
+        .nbt-info.show {
+            display: block;
+        }
+        .nbt-info .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #2a3a5a;
+            font-size: 0.85rem;
+        }
+        .nbt-info .row:last-child {
+            border-bottom: none;
+        }
+        .nbt-info .label {
+            color: #94a3b8;
+        }
+        .nbt-info .value {
+            color: #e2e8f0;
+        }
+        .mod-tag {
+            display: inline-block;
+            background: #0f172a;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            margin: 2px 4px 2px 0;
+        }
+        .mod-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">
-            Create<span>Mechanical</span>
-        </div>
+        <div class="logo">Create<span>Mechanical</span></div>
         <div class="nav-links">
             <a href="index.html" class="nav-link">首页</a>
             <a href="publish.html" class="nav-link">发布蓝图</a>
@@ -24,24 +114,50 @@
     <main class="container">
         <div class="form-card">
             <h2 style="margin-bottom: 24px; text-align: center;">分享你的蓝图</h2>
-            
+
             <div id="loginWarning" style="display: none; background: #2a2a2a; padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
                 <p style="margin-bottom: 12px;">请先登录才能发布蓝图</p>
                 <a href="login.html" class="btn btn-primary">立即登录</a>
                 <a href="register.html" class="btn btn-outline" style="margin-left: 12px;">注册账号</a>
             </div>
-            
+
             <form id="publishForm" style="display: none;">
+                <!-- NBT 上传 -->
+                <div class="form-group">
+                    <label>上传蓝图文件（可选，自动解析）</label>
+                    <div class="nbt-upload-area" id="nbtDropZone">
+                        <div class="icon">📂</div>
+                        <div class="hint">点击选择或拖拽上传 <strong>.nbt</strong> 或 <strong>.dat</strong> 文件</div>
+                        <input type="file" id="nbtFileInput" accept=".nbt,.dat">
+                        <div id="nbtFileName" class="file-name"></div>
+                    </div>
+                    <div id="nbtInfo" class="nbt-info">
+                        <div class="row"><span class="label">蓝图名称</span><span class="value" id="nbtName">-</span></div>
+                        <div class="row"><span class="label">方块总数</span><span class="value" id="nbtBlocks">-</span></div>
+                        <div class="row"><span class="label">实体数量</span><span class="value" id="nbtEntities">-</span></div>
+                        <div class="row"><span class="label">尺寸 (X×Y×Z)</span><span class="value" id="nbtSize">-</span></div>
+                        <div class="row" style="flex-wrap:wrap;"><span class="label">检测到的模组</span><span class="mod-list" id="nbtModsList"><span style="color:#64748b;">未检测到</span></span></div>
+                    </div>
+                    <input type="hidden" id="nbtBlockCount" value="0">
+                    <input type="hidden" id="nbtEntityCount" value="0">
+                    <input type="hidden" id="nbtSizeX" value="0">
+                    <input type="hidden" id="nbtSizeY" value="0">
+                    <input type="hidden" id="nbtSizeZ" value="0">
+                    <input type="hidden" id="nbtModsListHidden" value="">
+                    <small style="color: #6b7280;">上传后自动解析，无需手动填写</small>
+                </div>
+
                 <div class="form-group">
                     <label>标题 *</label>
                     <input type="text" id="title" placeholder="例如：全自动熔炉阵列" maxlength="200" required>
                 </div>
+
                 <div class="form-group">
                     <label>描述</label>
                     <textarea id="description" rows="4" placeholder="描述你的蓝图功能、使用说明等"></textarea>
                 </div>
-                
-                <!-- 用到的模组 -->
+
+                <!-- 模组标签 -->
                 <div class="form-group">
                     <label>用到的模组</label>
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
@@ -51,10 +167,10 @@
                     </div>
                     <div id="modTagsContainer" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;"></div>
                     <input type="hidden" id="modsListHidden" value="">
-                    <small style="color: #6b7280;">输入模组名称，点击添加，支持多个模组</small>
+                    <small style="color: #6b7280;">也可通过上传 NBT 文件自动识别</small>
                 </div>
-                
-                <!-- 图片上传 -->
+
+                <!-- 预览图 -->
                 <div class="form-group">
                     <label>预览图（可选）</label>
                     <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/gif" style="color: #e0e0e0;">
@@ -68,8 +184,8 @@
                     <small style="color: #6b7280;">支持 JPG、PNG、GIF，最大 16MB</small>
                     <div id="uploadStatus" style="font-size: 0.7rem; color: #6b7280; margin-top: 4px;"></div>
                 </div>
-                
-                <!-- 版本选择 -->
+
+                <!-- 版本 -->
                 <div class="form-group">
                     <label>MC版本 *</label>
                     <select id="mcVersion" class="version-select" required>
@@ -100,52 +216,46 @@
                         <option value="0.5.1">0.5.1</option>
                     </select>
                 </div>
-                
+
+                <!-- 链接 -->
                 <div class="form-group">
                     <label>下载链接 *</label>
                     <input type="url" id="link" placeholder="https://..." required>
                     <small style="color: #6b7280;">支持网盘链接、GitHub、直接下载链接（必须是 https）</small>
                 </div>
-                
+
+                <!-- 免责声明 -->
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="disclaimer" required>
                     <label>我已阅读并同意 <a href="#" id="showDisclaimer">《免责声明》</a>，承诺分享的内容不侵犯他人权益</label>
                 </div>
+
                 <button type="submit" class="btn btn-primary" style="width: 100%;">发布蓝图</button>
             </form>
         </div>
     </main>
 
-    <!-- 免责声明弹窗 -->
+    <!-- ========== 免责声明弹窗（完整版） ========== -->
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
             <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2026年6月13日</strong></p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 关联关系声明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联、合作或背书关系。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 用户内容免责</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站所有蓝图文件、链接及文字描述均由用户自行上传。本网站不对用户上传内容的合法性、安全性、准确性、完整性作任何保证。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 使用风险</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">下载或使用本网站的任何蓝图，风险由您自行承担。因使用本网站内容导致的任何损失，本网站不承担任何赔偿责任。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 技术检测声明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站已采取行业常规的安全检测措施（包括自动化扫描和人工抽查）。但技术的局限性意味着无法保证100%的准确性和完整性。本网站不对检测结果的准确性作任何保证。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 第三方链接</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站可能包含指向第三方网站的链接，本网站不对第三方网站的内容、安全性或可用性承担任何责任。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 侵权通知</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">若您认为本网站存在侵犯您合法权益的内容，请联系：creatmodel@163.com。本网站在收到有效通知后48小时内核实并处理。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 个人信息说明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站依法收集必要个人信息，详见用户协议第9条。</p>
-            
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 声明的修改</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本免责声明的权利，修改后的版本自公布之日起生效。</p>
-            
             <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
@@ -153,11 +263,9 @@
     <script src="script.js"></script>
     <script src="sidebar.js"></script>
     <script>
-        let isSubmitting = false;
-        
-        // ImgBB API Key
         const IMGBB_API_KEY = '0bb35dd01d42e7df850d535d2c79e8f6';
-        
+        let isSubmitting = false;
+
         // ===== 模组标签管理 =====
         const modInput = document.getElementById('modInput');
         const addModBtn = document.getElementById('addModBtn');
@@ -168,7 +276,7 @@
 
         function renderModTags() {
             if (modsList.length === 0) {
-                modTagsContainer.innerHTML = '<span style="color:#64748b; font-size:0.85rem;">暂无模组，请添加</span>';
+                modTagsContainer.innerHTML = '<span style="color:#64748b; font-size:0.85rem;">暂无模组，请添加或上传NBT自动识别</span>';
                 modsListHidden.value = '';
                 return;
             }
@@ -192,79 +300,213 @@
 
         addModBtn.addEventListener('click', function() {
             const modName = modInput.value.trim();
-            if (!modName) {
-                alert('请输入模组名称');
-                return;
-            }
-            if (modsList.includes(modName)) {
-                alert('模组已存在');
-                modInput.value = '';
-                return;
-            }
+            if (!modName) { alert('请输入模组名称'); return; }
+            if (modsList.includes(modName)) { alert('模组已存在'); modInput.value = ''; return; }
             modsList.push(modName);
             modInput.value = '';
             renderModTags();
         });
 
         modInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addModBtn.click();
-            }
+            if (e.key === 'Enter') { e.preventDefault(); addModBtn.click(); }
         });
 
         clearModsBtn.addEventListener('click', function() {
             if (modsList.length === 0) return;
-            if (confirm('确定清空所有模组吗？')) {
-                modsList = [];
-                renderModTags();
-            }
+            if (confirm('确定清空所有模组吗？')) { modsList = []; renderModTags(); }
         });
-        
-        function checkLogin() {
-            const loggedIn = isLoggedIn();
-            const warning = document.getElementById('loginWarning');
-            const form = document.getElementById('publishForm');
-            
-            if (loggedIn) {
-                warning.style.display = 'none';
-                form.style.display = 'block';
-            } else {
-                warning.style.display = 'block';
-                form.style.display = 'none';
+
+        // ===== NBT 解析 =====
+        const MOD_ID_MAP = {
+            'create': '机械动力',
+            'createaddition': 'Create Crafts & Additions',
+            'create_connected': 'Create Connected',
+            'createdeco': 'Create Deco',
+            'create_jetpack': 'Create Jetpack',
+            'create_stuff_additions': 'Create Stuff Additions',
+            'creategoggles': 'Create Goggles',
+            'create_enchantment_industry': 'Create Enchantment Industry',
+            'create_optical': 'Create Optical',
+            'create_sifter': 'Create Sifter',
+            'create_tweaked_controllers': 'Create Tweaked Controllers',
+            'create_central_kitchen': 'Create Central Kitchen',
+            'create_crystal_clear': 'Create Crystal Clear',
+            'create_mechanical_extruder': 'Create Mechanical Extruder',
+            'create_ore_excavation': 'Create Ore Excavation',
+            'create_power_loader': 'Create Power Loader',
+            'create_robotics': 'Create Robotics',
+            'create_sapling': 'Create Sapling',
+            'create_steam_heated': 'Create Steam Heated',
+            'create_tank': 'Create Tank',
+            'create_train_perspective': 'Create Train Perspective',
+            'minecraft': 'Minecraft',
+            'forge': 'Forge',
+            'neoforge': 'NeoForge'
+        };
+        const MOD_KEYWORDS = ['create', 'minecraft', 'forge', 'neoforge', 'thermal', 'industrial', 'mechanical', 'steam', 'rotational'];
+
+        function parseNBTFile(arrayBuffer) {
+            try {
+                const nbt = nbt.parse(arrayBuffer);
+                const root = nbt.value;
+                const parsed = nbt.simplify(root);
+                let info = {
+                    name: '未知',
+                    blockCount: 0,
+                    entityCount: 0,
+                    size: { x: 0, y: 0, z: 0 },
+                    mods: []
+                };
+                if (parsed.name) info.name = parsed.name;
+                else if (parsed.Name) info.name = parsed.Name;
+                else if (parsed.id && typeof parsed.id === 'string') info.name = parsed.id;
+
+                if (parsed.blockCount !== undefined) info.blockCount = parsed.blockCount;
+                else if (parsed.BlockCount !== undefined) info.blockCount = parsed.BlockCount;
+                else if (parsed.blocks && Array.isArray(parsed.blocks)) info.blockCount = parsed.blocks.length;
+
+                if (parsed.entityCount !== undefined) info.entityCount = parsed.entityCount;
+                else if (parsed.EntityCount !== undefined) info.entityCount = parsed.EntityCount;
+                else if (parsed.entities && Array.isArray(parsed.entities)) info.entityCount = parsed.entities.length;
+
+                if (parsed.size) {
+                    if (parsed.size.x) info.size.x = parsed.size.x;
+                    if (parsed.size.y) info.size.y = parsed.size.y;
+                    if (parsed.size.z) info.size.z = parsed.size.z;
+                }
+                if (parsed.Size) {
+                    if (parsed.Size.x) info.size.x = parsed.Size.x;
+                    if (parsed.Size.y) info.size.y = parsed.Size.y;
+                    if (parsed.Size.z) info.size.z = parsed.Size.z;
+                }
+
+                const foundMods = new Set();
+                const jsonStr = JSON.stringify(parsed);
+                for (const [key, value] of Object.entries(MOD_ID_MAP)) {
+                    if (jsonStr.includes(key)) {
+                        foundMods.add(value);
+                    }
+                }
+                for (const keyword of MOD_KEYWORDS) {
+                    if (jsonStr.includes(keyword) && !foundMods.has(keyword)) {
+                        const mapped = MOD_ID_MAP[keyword];
+                        if (mapped) foundMods.add(mapped);
+                    }
+                }
+                info.mods = Array.from(foundMods);
+                if (info.mods.length === 0 && jsonStr.includes('minecraft')) {
+                    info.mods.push('Minecraft');
+                }
+                if (info.mods.length === 0) {
+                    info.mods.push('未知模组（请手动添加）');
+                }
+                return info;
+            } catch (error) {
+                console.error('NBT 解析失败:', error);
+                return null;
             }
         }
-        
-        // 图片上传
+
+        // ===== NBT 文件处理 =====
+        const nbtDropZone = document.getElementById('nbtDropZone');
+        const nbtFileInput = document.getElementById('nbtFileInput');
+        const nbtFileName = document.getElementById('nbtFileName');
+        const nbtInfo = document.getElementById('nbtInfo');
+
+        function handleNBTFile(file) {
+            if (!file) return;
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['nbt', 'dat'].includes(ext)) {
+                alert('请上传 .nbt 或 .dat 文件');
+                return;
+            }
+            nbtFileName.textContent = '📄 已选择: ' + file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const arrayBuffer = e.target.result;
+                    const info = parseNBTFile(arrayBuffer);
+                    if (!info) {
+                        alert('NBT 文件解析失败，请确认文件格式正确');
+                        return;
+                    }
+                    document.getElementById('nbtName').textContent = info.name;
+                    document.getElementById('nbtBlocks').textContent = info.blockCount || 0;
+                    document.getElementById('nbtEntities').textContent = info.entityCount || 0;
+                    document.getElementById('nbtSize').textContent = `${info.size.x || 0} × ${info.size.y || 0} × ${info.size.z || 0}`;
+
+                    const modsListEl = document.getElementById('nbtModsList');
+                    if (info.mods && info.mods.length > 0 && info.mods[0] !== '未知模组（请手动添加）') {
+                        modsListEl.innerHTML = info.mods.map(m => `<span class="mod-tag">${escapeHtml(m)}</span>`).join('');
+                        info.mods.forEach(mod => {
+                            if (mod !== '未知模组（请手动添加）' && !modsList.includes(mod)) {
+                                modsList.push(mod);
+                            }
+                        });
+                        renderModTags();
+                    } else {
+                        modsListEl.innerHTML = '<span style="color:#64748b;">未检测到已知模组</span>';
+                    }
+
+                    document.getElementById('nbtBlockCount').value = info.blockCount || 0;
+                    document.getElementById('nbtEntityCount').value = info.entityCount || 0;
+                    document.getElementById('nbtSizeX').value = info.size.x || 0;
+                    document.getElementById('nbtSizeY').value = info.size.y || 0;
+                    document.getElementById('nbtSizeZ').value = info.size.z || 0;
+                    document.getElementById('nbtModsListHidden').value = info.mods.join(',');
+
+                    nbtInfo.classList.add('show');
+                } catch (error) {
+                    console.error('解析失败:', error);
+                    alert('解析失败: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        nbtDropZone.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT') {
+                nbtFileInput.click();
+            }
+        });
+        nbtFileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                handleNBTFile(this.files[0]);
+            }
+        });
+        nbtDropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        nbtDropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        nbtDropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleNBTFile(files[0]);
+                nbtFileInput.files = files;
+            }
+        });
+
+        // ===== 图片上传 =====
         document.getElementById('imageUpload')?.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
-            if (!file.type.startsWith('image/')) {
-                alert('请选择图片文件');
-                return;
-            }
-            
-            if (file.size > 16 * 1024 * 1024) {
-                alert('图片不能超过16MB');
-                return;
-            }
-            
+            if (!file.type.startsWith('image/')) { alert('请选择图片文件'); return; }
+            if (file.size > 16 * 1024 * 1024) { alert('图片不能超过16MB'); return; }
             const uploadStatus = document.getElementById('uploadStatus');
             uploadStatus.textContent = '上传中...';
             uploadStatus.style.color = '#f97316';
-            
             const formData = new FormData();
             formData.append('image', file);
             formData.append('key', IMGBB_API_KEY);
-            
             try {
-                const response = await fetch('https://api.imgbb.com/1/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
                 const result = await response.json();
-                
                 if (result.success) {
                     const url = result.data.url;
                     document.getElementById('previewImage').value = url;
@@ -272,9 +514,7 @@
                     document.getElementById('imagePreview').style.display = 'block';
                     uploadStatus.textContent = '上传成功！';
                     uploadStatus.style.color = '#22c55e';
-                    setTimeout(() => {
-                        uploadStatus.textContent = '';
-                    }, 2000);
+                    setTimeout(() => { uploadStatus.textContent = ''; }, 2000);
                 } else {
                     uploadStatus.textContent = '上传失败：' + (result.error?.message || '未知错误');
                     uploadStatus.style.color = '#ef4444';
@@ -284,42 +524,33 @@
                 uploadStatus.style.color = '#ef4444';
             }
         });
-        
-        // 删除图片
+
         document.getElementById('removeImageBtn')?.addEventListener('click', () => {
             document.getElementById('previewImage').value = '';
             document.getElementById('imagePreview').style.display = 'none';
             document.getElementById('imageUpload').value = '';
         });
-        
-        // 免责声明弹窗
+
+        // ===== 免责声明弹窗 =====
         document.getElementById('showDisclaimer')?.addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('disclaimerModal').style.display = 'flex';
         });
-        
         document.getElementById('closeDisclaimer')?.addEventListener('click', () => {
             document.getElementById('disclaimerModal').style.display = 'none';
         });
-        
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('disclaimerModal')) {
                 document.getElementById('disclaimerModal').style.display = 'none';
             }
         });
-        
-        // 发布表单提交
+
+        // ===== 发布提交 =====
         document.getElementById('publishForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            if (isSubmitting) {
-                showMessage('正在发布中，请勿重复点击', 'error');
-                return;
-            }
-            
+            if (isSubmitting) { showMessage('正在发布中，请勿重复点击', 'error'); return; }
             const submitBtn = document.querySelector('#publishForm button[type="submit"]');
             const originalText = submitBtn.textContent;
-            
             const title = document.getElementById('title').value.trim();
             const description = document.getElementById('description').value.trim();
             const link = document.getElementById('link').value.trim();
@@ -327,56 +558,49 @@
             const createVersion = document.getElementById('createVersion').value;
             const previewImage = document.getElementById('previewImage').value;
             const disclaimer = document.getElementById('disclaimer').checked;
-            
-            if (!title) {
-                showMessage('请输入标题', 'error');
-                return;
-            }
-            if (!link) {
-                showMessage('请输入链接', 'error');
-                return;
-            }
-            if (!link.startsWith('https://')) {
-                showMessage('链接必须是 https 协议', 'error');
-                return;
-            }
-            if (!mcVersion) {
-                showMessage('请选择 MC 版本', 'error');
-                return;
-            }
-            if (!createVersion) {
-                showMessage('请选择 Create 版本', 'error');
-                return;
-            }
-            if (!disclaimer) {
-                showMessage('请阅读并同意免责声明', 'error');
-                return;
-            }
-            
-            // 构建完整描述（模组 + 原描述）
+
+            const blockCount = parseInt(document.getElementById('nbtBlockCount').value) || 0;
+            const entityCount = parseInt(document.getElementById('nbtEntityCount').value) || 0;
+            const sizeX = parseInt(document.getElementById('nbtSizeX').value) || 0;
+            const sizeY = parseInt(document.getElementById('nbtSizeY').value) || 0;
+            const sizeZ = parseInt(document.getElementById('nbtSizeZ').value) || 0;
+            const nbtMods = document.getElementById('nbtModsListHidden').value || '';
+
+            if (!title) { showMessage('请输入标题', 'error'); return; }
+            if (!link) { showMessage('请输入链接', 'error'); return; }
+            if (!link.startsWith('https://')) { showMessage('链接必须是 https 协议', 'error'); return; }
+            if (!mcVersion) { showMessage('请选择 MC 版本', 'error'); return; }
+            if (!createVersion) { showMessage('请选择 Create 版本', 'error'); return; }
+            if (!disclaimer) { showMessage('请阅读并同意免责声明', 'error'); return; }
+
             let fullDescription = description || '';
             if (modsList.length > 0) {
                 fullDescription = '【模组：' + modsList.join('、') + '】' + (fullDescription ? '\n' + fullDescription : '');
             }
-            
+
             isSubmitting = true;
             submitBtn.textContent = '发布中...';
             submitBtn.disabled = true;
-            
+
             try {
                 const response = await authFetch('/blueprints', {
                     method: 'POST',
-                    body: JSON.stringify({ 
-                        title, 
+                    body: JSON.stringify({
+                        title,
                         description: fullDescription,
                         link,
                         mcVersion,
                         createVersion,
-                        previewImage
+                        previewImage,
+                        blockCount,
+                        entityCount,
+                        sizeX,
+                        sizeY,
+                        sizeZ,
+                        nbtMods
                     })
                 });
                 const result = await response.json();
-                
                 if (result.success) {
                     showMessage('发布成功！', 'success');
                     setTimeout(() => {
@@ -393,25 +617,31 @@
                 submitBtn.disabled = false;
             }
         });
-        
+
+        // ===== 登录检查 =====
+        function checkLogin() {
+            const loggedIn = isLoggedIn();
+            const warning = document.getElementById('loginWarning');
+            const form = document.getElementById('publishForm');
+            if (loggedIn) { warning.style.display = 'none'; form.style.display = 'block'; }
+            else { warning.style.display = 'block'; form.style.display = 'none'; }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        // ===== 初始化 =====
         checkLogin();
         updateNavbar();
+        renderModTags();
     </script>
-    <style>
-        .version-select {
-            width: 100%;
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 12px;
-            color: #e0e0e0;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        .version-select:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-    </style>
 </body>
 </html>
