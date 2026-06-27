@@ -99,22 +99,27 @@ function updateNavbar() {
         }
     }
 }
-
 document.addEventListener('click', function(e) {
     const target = e.target.closest('a');
     if (target && target.href) {
         e.preventDefault();
         const href = target.href;
+
+        // 每次都创建新的 Audio 对象（避免状态问题）
         const audio = new Audio('click.mp3');
         audio.volume = 0.25;
-        audio.play().then(() => {
-            setTimeout(() => { window.location.href = href; }, 200);
-        }).catch(() => {
-            window.location.href = href;
+        
+        // 播放音效，同时保证无论如何都会跳转
+        audio.play().catch(() => {}).finally(() => {
+            // 无论播放成功还是失败，200ms 后跳转
+            setTimeout(() => {
+                window.location.href = href;
+            }, 200);
         });
         return;
     }
 
+    // 非链接点击，正常播放音效
     try {
         const audio = new Audio('click.mp3');
         audio.volume = 0.25;
