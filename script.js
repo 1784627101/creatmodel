@@ -99,9 +99,9 @@ function updateNavbar() {
         }
     }
 }
-// ===== 全局点击音效 =====
+// ===== 全局点击音效（任何点击都发声） =====
 document.addEventListener('click', function(e) {
-    // 排除输入框、文本框、下拉菜单等（避免干扰用户输入）
+    // 输入框、文本区域、下拉菜单不触发（避免打字时的误触）
     const tag = e.target.tagName.toLowerCase();
     if (tag === 'input' || tag === 'textarea' || tag === 'select') {
         return;
@@ -109,9 +109,7 @@ document.addEventListener('click', function(e) {
 
     try {
         const audio = new Audio('click.mp3');
-        audio.volume = 0.5;  // 音量 30%，可以自己调
+        audio.volume = 0.25;
         audio.play().catch(() => {});
-    } catch (err) {
-        // 静默失败，不影响功能
-    }
+    } catch (err) {}
 });
