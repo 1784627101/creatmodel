@@ -44,6 +44,48 @@
         .detail-link .btn {
             display: inline-block;
         }
+        .balance-display {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #0f172a;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            margin-bottom: 12px;
+        }
+        .balance-display img {
+            width: 18px;
+            height: 18px;
+            image-rendering: pixelated;
+        }
+        .download-section {
+            position: relative;
+        }
+        /* 粒子动画 */
+        .emerald-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 20px;
+            height: 20px;
+            background: url('money.png') center/contain no-repeat;
+            image-rendering: pixelated;
+            transition: none;
+        }
+        .emerald-particle-trail {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            border-radius: 50%;
+            background: rgba(46, 204, 113, 0.4);
+        }
+        @keyframes particleFly {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(0.8) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(0.3) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -82,6 +124,7 @@
     <script src="sidebar.js"></script>
     <script>
         let currentBlueprint = null;
+        let currentUserBalance = 0;
 
         function parseMods(description) {
             if (!description) return { mods: [], text: '' };
@@ -109,12 +152,30 @@
 
                 if (result.success) {
                     currentBlueprint = result.data;
+                    await fetchUserBalance();
                     renderBlueprint();
                 } else {
                     document.getElementById('detailContainer').innerHTML = '<div class="empty">蓝图不存在或已被删除</div>';
                 }
             } catch (error) {
                 document.getElementById('detailContainer').innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
+            }
+        }
+
+        async function fetchUserBalance() {
+            const loggedIn = isLoggedIn();
+            if (!loggedIn) {
+                currentUserBalance = 0;
+                return;
+            }
+            try {
+                const res = await authFetch('/balance');
+                const data = await res.json();
+                if (data.success) {
+                    currentUserBalance = data.balance || 0;
+                }
+            } catch (e) {
+                currentUserBalance = 0;
             }
         }
 
@@ -125,12 +186,23 @@
             const isOwner = loggedIn && localStorage.getItem('username') === bp.username;
             const parsed = parseMods(bp.description);
 
+            // 绿宝石余额显示
+            let balanceHtml = '';
+            if (loggedIn) {
+                balanceHtml = `
+                    <div class="balance-display">
+                        <img src="money.png" alt="绿宝石">
+                        <span>余额: <span id="detailBalanceDisplay">${currentUserBalance}</span></span>
+                    </div>
+                `;
+            }
+
             container.innerHTML = `
                 <div class="detail-card">
                     ${bp.preview_image ? `<img src="${bp.preview_image}" class="detail-image" alt="${escapeHtml(bp.title)}">` : ''}
                     <h1 class="detail-title">${escapeHtml(bp.title)}</h1>
                     <div class="detail-meta">
-                        <span>发布者: <a href="profile.html?id=${bp.user_id}" style="color:#3b82f6;text-decoration:none;">${escapeHtml(bp.username)}</a></span>
+                        <span>发布者: <a href="profile.html?id=${bp.user_id}" style="color:#3b82f6;text-decoration:none;" id="publisherName">${escapeHtml(bp.username)}</a></span>
                         <span>${formatDate(bp.upload_time || bp.created_at)}</span>
                     </div>
                     <div class="detail-versions">
@@ -154,11 +226,11 @@
                         <p>${escapeHtml(parsed.text || '暂无描述')}</p>
                     </div>
 
-                    <!-- ===== 修改后的下载区域 ===== -->
-                    <div class="detail-link">
+                    <div class="detail-link download-section">
                         <h3>下载蓝图</h3>
+                        ${balanceHtml}
                         ${loggedIn ? `
-                            <button class="btn btn-primary" onclick="downloadBlueprint(${bp.id})">点击下载</button>
+                            <button class="btn btn-primary" id="downloadBtn" onclick="downloadBlueprint(${bp.id})">点击下载 (消耗1绿宝石)</button>
                             <p style="margin-top: 8px; font-size: 0.75rem; color: #64748b;">
                                 点击后生成临时下载链接，60秒内有效
                             </p>
@@ -178,7 +250,124 @@
             `;
         }
 
-        // ===== 新增：下载蓝图（通过临时链接） =====
+        // ===== 粒子效果：从发布者名字飞到侧边栏绿宝石 =====
+        function showEmeraldParticle(sourceElement) {
+            const targetElement = document.querySelector('#balanceDisplay') || document.querySelector('.balance-display');
+            if (!sourceElement || !targetElement) {
+                // 降级：从屏幕中间飞
+                const fallbackX = window.innerWidth / 2;
+                const fallbackY = window.innerHeight / 2;
+                createParticleFromTo(
+                    { x: fallbackX, y: fallbackY },
+                    { x: window.innerWidth - 80, y: 80 }
+                );
+                return;
+            }
+
+            const srcRect = sourceElement.getBoundingClientRect();
+            const tgtRect = targetElement.getBoundingClientRect();
+
+            const startX = srcRect.left + srcRect.width / 2;
+            const startY = srcRect.top + srcRect.height / 2;
+            const endX = tgtRect.left + tgtRect.width / 2;
+            const endY = tgtRect.top + tgtRect.height / 2;
+
+            createParticleFromTo({ x: startX, y: startY }, { x: endX, y: endY });
+        }
+
+        function createParticleFromTo(start, end) {
+            const particle = document.createElement('div');
+            particle.className = 'emerald-particle';
+            particle.style.left = start.x + 'px';
+            particle.style.top = start.y + 'px';
+            particle.style.width = '24px';
+            particle.style.height = '24px';
+            particle.style.backgroundImage = "url('money.png')";
+            particle.style.backgroundSize = 'contain';
+            particle.style.backgroundRepeat = 'no-repeat';
+            particle.style.imageRendering = 'pixelated';
+            particle.style.transition = 'none';
+            document.body.appendChild(particle);
+
+            // 轨迹尾迹
+            const trailCount = 8;
+            const trails = [];
+            for (let i = 0; i < trailCount; i++) {
+                const trail = document.createElement('div');
+                trail.className = 'emerald-particle-trail';
+                trail.style.left = start.x + 'px';
+                trail.style.top = start.y + 'px';
+                trail.style.width = (4 + Math.random() * 6) + 'px';
+                trail.style.height = (4 + Math.random() * 6) + 'px';
+                trail.style.opacity = '0.6';
+                trail.style.background = `rgba(46, 204, 113, ${0.3 + Math.random() * 0.3})`;
+                trail.style.borderRadius = '50%';
+                trail.style.pointerEvents = 'none';
+                document.body.appendChild(trail);
+                trails.push(trail);
+            }
+
+            const duration = 800;
+            const startTime = performance.now();
+
+            function animateParticle(time) {
+                const elapsed = time - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // easeOutCubic
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const currentX = start.x + (end.x - start.x) * ease;
+                const currentY = start.y + (end.y - start.y) * ease - 40 * ease * (1 - ease) * 2;
+
+                particle.style.left = currentX + 'px';
+                particle.style.top = currentY + 'px';
+                particle.style.transform = `scale(${1 - ease * 0.6}) rotate(${ease * 360}deg)`;
+                particle.style.opacity = 1 - ease * 0.5;
+
+                // 更新尾迹
+                trails.forEach((trail, idx) => {
+                    const trailProgress = Math.max(0, progress - (idx + 1) * 0.04);
+                    if (trailProgress > 0) {
+                        const tx = start.x + (end.x - start.x) * trailProgress;
+                        const ty = start.y + (end.y - start.y) * trailProgress - 40 * trailProgress * (1 - trailProgress) * 2;
+                        trail.style.left = tx + 'px';
+                        trail.style.top = ty + 'px';
+                        trail.style.opacity = (1 - trailProgress) * 0.5;
+                        trail.style.transform = `scale(${1 - trailProgress * 0.5})`;
+                    }
+                });
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateParticle);
+                } else {
+                    // 移除粒子
+                    particle.remove();
+                    trails.forEach(t => t.remove());
+                    // 刷新余额显示
+                    updateBalanceDisplay();
+                }
+            }
+            requestAnimationFrame(animateParticle);
+        }
+
+        async function updateBalanceDisplay() {
+            try {
+                const res = await authFetch('/balance');
+                const data = await res.json();
+                if (data.success) {
+                    currentUserBalance = data.balance || 0;
+                    const display = document.getElementById('detailBalanceDisplay');
+                    if (display) display.textContent = currentUserBalance;
+                    updateSidebarBalance(currentUserBalance);
+                }
+            } catch (e) {}
+        }
+
+        function updateSidebarBalance(balance) {
+            const el = document.getElementById('balanceAmount');
+            if (el) el.textContent = balance;
+        }
+
+        // ===== 下载蓝图 =====
         async function downloadBlueprint(blueprintId) {
             if (!isLoggedIn()) {
                 showMessage('请先登录再下载', 'error');
@@ -188,23 +377,55 @@
                 return;
             }
 
-            try {
-                showMessage('正在生成下载链接...', 'success');
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) {
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = '处理中...';
+            }
 
+            try {
                 const response = await authFetch(`/download-token/${blueprintId}`, {
                     method: 'POST'
                 });
                 const result = await response.json();
 
                 if (result.success) {
-                    // 跳转到重定向接口
-                    const baseUrl = API_URL.replace(/\/api$/, '');
-                    window.location.href = `${baseUrl}/redirect?token=${result.token}`;
+                    // 触发粒子效果（从发布者名字飞出）
+                    const publisherEl = document.getElementById('publisherName');
+                    if (publisherEl) {
+                        showEmeraldParticle(publisherEl);
+                    } else {
+                        // 降级
+                        const nameEl = document.querySelector('.detail-meta span:first-child');
+                        if (nameEl) showEmeraldParticle(nameEl);
+                    }
+
+                    // 等待粒子动画完成后再跳转
+                    setTimeout(() => {
+                        const baseUrl = API_URL.replace(/\/api$/, '');
+                        window.location.href = `${baseUrl}/redirect?token=${result.token}`;
+                    }, 900);
+
+                    // 提前更新余额显示
+                    if (result.balance !== undefined) {
+                        currentUserBalance = result.balance;
+                        const display = document.getElementById('detailBalanceDisplay');
+                        if (display) display.textContent = currentUserBalance;
+                        updateSidebarBalance(currentUserBalance);
+                    }
                 } else {
                     showMessage(result.error || '生成下载链接失败', 'error');
+                    if (downloadBtn) {
+                        downloadBtn.disabled = false;
+                        downloadBtn.textContent = '点击下载 (消耗1绿宝石)';
+                    }
                 }
             } catch (error) {
                 showMessage('下载失败：' + error.message, 'error');
+                if (downloadBtn) {
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = '点击下载 (消耗1绿宝石)';
+                }
             }
         }
 
@@ -269,12 +490,6 @@
             } catch (error) {
                 showMessage('删除失败: ' + error.message, 'error');
             }
-        }
-
-        // 原 recordDownload 不再使用，但保留防止其他调用
-        async function recordDownload() {
-            // 已经被 downloadBlueprint 替代，不再使用
-            console.warn('recordDownload 已被 downloadBlueprint 替代');
         }
 
         window.addEventListener('click', (e) => {
