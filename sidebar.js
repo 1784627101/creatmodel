@@ -29,7 +29,7 @@
                 <span class="icon">
                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>
-                <span class="label">我的蓝图</span>
+                <span class="label">个人中心</span>
             </a>
             <a href="apps.html" class="nav-item" data-page="apps">
                 <span class="icon">
