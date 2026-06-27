@@ -369,6 +369,12 @@
 
         // ===== 下载蓝图 =====
         async function downloadBlueprint(blueprintId) {
+            try {
+                const audio = new Audio('orb.mp3');
+                audio.volume = 0.5;
+                audio.play().catch(() => {});
+            } catch (e) {}
+
             if (!isLoggedIn()) {
                 showMessage('请先登录再下载', 'error');
                 setTimeout(() => {
