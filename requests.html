@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求蓝图 - 机械动力蓝图社区</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="page.svg">
+    <style>
+        .requests-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .requests-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .requests-header h1 {
+            color: #e2e8f0;
+            font-size: 2rem;
+        }
+        .requests-header .sub {
+            color: #94a3b8;
+        }
+        .request-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+        .request-card:hover {
+            border-color: #3b82f6;
+        }
+        .request-card .title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        .request-card .meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        .request-card .desc {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin: 8px 0;
+        }
+        .request-card .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .status-pending { background: #f97316; color: #fff; }
+        .status-in_progress { background: #3b82f6; color: #fff; }
+        .status-resolved { background: #22c55e; color: #fff; }
+        .request-card .actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .request-card .reward {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .filter-bar select, .filter-bar input {
+            padding: 8px 14px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #e0e0e0;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-content {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #2a2a2a;
+        }
+        .modal-content h2 {
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+        .modal-content .form-group {
+            margin-bottom: 16px;
+        }
+        .modal-content .form-group label {
+            display: block;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        .modal-content .form-group input,
+        .modal-content .form-group textarea,
+        .modal-content .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+        }
+        .modal-content .btn-row {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Create<span>Mechanical</span></div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">首页</a>
+            <a href="publish.html" class="nav-link">发布蓝图</a>
+            <a href="profile.html" class="nav-link">我的发布</a>
+            <a href="login.html" class="btn btn-outline">登录</a>
+            <a href="register.html" class="btn btn-primary">注册</a>
+        </div>
+    </nav>
+
+    <div class="requests-container">
+        <div class="requests-header">
+            <div>
+                <h1>📋 求蓝图</h1>
+                <div class="sub">想要一个蓝图？说出来，让创作者帮你做！</div>
+            </div>
+            <button class="btn btn-primary" onclick="openNewRequest()">+ 发起需求</button>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <select id="filterStatus" onchange="loadRequests()">
+                <option value="">全部状态</option>
+                <option value="pending">等待接单</option>
+                <option value="in_progress">制作中</option>
+                <option value="resolved">已完成</option>
+            </select>
+            <input type="text" id="filterSearch" placeholder="搜索需求..." oninput="loadRequests()">
+        </div>
+
+        <!-- 需求列表 -->
+        <div id="requestList">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <!-- 新建需求弹窗 -->
+    <div id="newRequestModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>发起需求</h2>
+            <form id="requestForm">
+                <div class="form-group">
+                    <label>标题 *</label>
+                    <input type="text" id="reqTitle" placeholder="例如：我想要一个自动熔炉" required>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="reqDesc" rows="3" placeholder="详细描述你想要的蓝图功能..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>MC版本</label>
+                    <select id="reqMcVersion">
+                        <option value="">不限</option>
+                        <option value="1.21.1">1.21.1</option>
+                        <option value="1.20.1">1.20.1</option>
+                        <option value="1.19.2">1.19.2</option>
+                        <option value="1.18.2">1.18.2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Create版本</label>
+                    <select id="reqCreateVersion">
+                        <option value="">不限</option>
+                        <option value="6.0.10">6.0.10</option>
+                        <option value="6.0.9">6.0.9</option>
+                        <option value="6.0.8">6.0.8</option>
+                        <option value="6.0.7">6.0.7</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>悬赏绿宝石（可选）</label>
+                    <input type="number" id="reqReward" value="0" min="0" max="100">
+                </div>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewRequest()">取消</button>
+                    <button type="submit" class="btn btn-primary">提交需求</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        let currentFilter = '';
+
+        async function loadRequests() {
+            const container = document.getElementById('requestList');
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('filterSearch').value.trim();
+            
+            container.innerHTML = '<div class="loading">加载中...</div>';
+
+            let url = `${API_URL}/requests`;
+            const params = new URLSearchParams();
+            if (status) params.append('status', status);
+            if (search) params.append('search', search);
+            if (params.toString()) url += '?' + params.toString();
+
+            try {
+                const res = await fetch(url);
+                const result = await res.json();
+                if (!result.success || result.data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">🔍</div>
+                            <p>还没有需求，点击右上角发起第一个吧！</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = result.data.map(req => `
+                    <div class="request-card">
+                        <div class="title">${escapeHtml(req.title)}</div>
+                        <div class="meta">
+                            <span>👤 ${escapeHtml(req.username)}</span>
+                            <span>📅 ${formatDate(req.created_at)}</span>
+                            ${req.reward > 0 ? `<span class="reward">💎 悬赏 ${req.reward} 绿宝石</span>` : ''}
+                            ${req.mc_version ? `<span>MC: ${escapeHtml(req.mc_version)}</span>` : ''}
+                            ${req.create_version ? `<span>Create: ${escapeHtml(req.create_version)}</span>` : ''}
+                            <span class="status-badge status-${req.status}">${statusMap[req.status] || req.status}</span>
+                        </div>
+                        ${req.description ? `<div class="desc">${escapeHtml(req.description)}</div>` : ''}
+                        <div class="actions">
+                            ${req.status === 'pending' && isLoggedIn() ? `<button class="btn btn-outline btn-sm" onclick="takeRequest(${req.id})">接单</button>` : ''}
+                            ${req.status === 'in_progress' ? `<span style="color:#94a3b8;font-size:0.8rem;">⏳ 制作中...</span>` : ''}
+                            ${req.status === 'resolved' && req.blueprint_id ? `<a href="blueprint.html?id=${req.blueprint_id}" class="btn btn-outline btn-sm">查看蓝图</a>` : ''}
+                            ${req.user_id === getUserId() ? `<button class="btn btn-danger btn-sm" onclick="deleteRequest(${req.id})">删除</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
+            }
+        }
+
+        const statusMap = {
+            pending: '等待接单',
+            in_progress: '制作中',
+            resolved: '已完成'
+        };
+
+        function getUserId() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return null;
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.userId;
+            } catch { return null; }
+        }
+
+        function openNewRequest() {
+            if (!isLoggedIn()) {
+                showMessage('请先登录', 'error');
+                setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+                return;
+            }
+            document.getElementById('newRequestModal').classList.add('show');
+        }
+
+        function closeNewRequest() {
+            document.getElementById('newRequestModal').classList.remove('show');
+        }
+
+        document.getElementById('requestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('reqTitle').value.trim();
+            const description = document.getElementById('reqDesc').value.trim();
+            const mcVersion = document.getElementById('reqMcVersion').value;
+            const createVersion = document.getElementById('reqCreateVersion').value;
+            const reward = parseInt(document.getElementById('reqReward').value) || 0;
+
+            if (!title) {
+                showMessage('请输入标题', 'error');
+                return;
+            }
+
+            try {
+                const res = await authFetch('/requests', {
+                    method: 'POST',
+                    body: JSON.stringify({ title, description, mcVersion, createVersion, reward })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showMessage('需求已提交！', 'success');
+                    closeNewRequest();
+                    document.getElementById('requestForm').reset();
+                    loadRequests();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (err) {
+                showMessage('提交失败：' + err.message, 'error');
+            }
+        });
+
+        async function takeRequest(id) {
+            if (!confirm('确定要接单吗？')) return;
+            try {
+                const res = await authFetch(`/requests/${id}/take`, { method: 'PUT' });
+                const data = await res.json();
+                if (data.success) {
+                    showMessage('接单成功！制作完成后发布蓝图并关联此需求', 'success');
+                    loadRequests();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (err) {
+                showMessage('接单失败：' + err.message, 'error');
+            }
+        }
+
+        async function deleteRequest(id) {
+            if (!confirm('确定删除此需求吗？')) return;
+            try {
+                const res = await authFetch(`/requests/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    showMessage('已删除', 'success');
+                    loadRequests();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (err) {
+                showMessage('删除失败：' + err.message, 'error');
+            }
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('newRequestModal').addEventListener('click', function(e) {
+            if (e.target === this) closeNewRequest();
+        });
+
+        updateNavbar();
+        loadRequests();
+    </script>
+</body>
+</html>

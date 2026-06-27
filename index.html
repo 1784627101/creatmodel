@@ -8,7 +8,7 @@
     <meta name="keywords" content="机械动力, Create Mod, 蓝图, 我的世界蓝图, 机械动力蓝图">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
-    <!-- 侧边栏特有样式a -->
+    <!-- 侧边栏特有样式 -->
     <style>
         .sidebar-card {
             background: #1e293b;
@@ -97,7 +97,7 @@
         <div class="nav-links">
             <a href="index.html" class="nav-link">首页</a>
             <a href="publish.html" class="nav-link">发布蓝图</a>
-            <a href="profile.html" class="nav-link">个人中心</a>
+            <a href="profile.html" class="nav-link">我的发布</a>
             <a href="login.html" class="btn btn-outline">登录</a>
             <a href="register.html" class="btn btn-primary">注册</a>
         </div>
@@ -107,7 +107,7 @@
         <!-- 主内容区 -->
         <div class="content">
             <h1 style="margin-bottom: 8px;">机械动力蓝图分享</h1>
-            <p style="color: #9ca3af; margin-bottom: 16px;">共建机械动力中文蓝图库</p>
+            <p style="color: #9ca3af; margin-bottom: 16px;">发现和分享机械动力模组的优秀蓝图</p>
 
             <!-- 搜索栏 -->
             <div class="search-bar">
@@ -184,18 +184,27 @@
                 </div>
             </div>
 
-            <!-- 公告栏 -->
-            <div class="sidebar-card">
-                <h3>📢 公告</h3>
-                <div id="announcement">
-                    <div class="announcement-date">2026年6月15日</div>
-                    <div class="announcement">
-                        欢迎来到机械动力蓝图分享社区！<br><br>
-                        📌 发布蓝图请先登录<br>
-                        📌 每个IP每天可发布3个蓝图<br>
-                        📌 所有链接会经过安全检测<br>
-                        📌 有问题请联系：creatmodel@163.com
+            <!-- ===== 求蓝图入口（替代公告栏） ===== -->
+            <div class="sidebar-card" style="border-color: rgba(251, 191, 36, 0.3);">
+                <h3 style="color: #fbbf24;">📋 求蓝图</h3>
+                <div style="margin-top: 8px;">
+                    <!-- 假消息示例 -->
+                    <div style="background: #0f172a; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; border-left: 3px solid #fbbf24;">
+                        <div style="font-size: 0.85rem; color: #e2e8f0; font-weight: 500;">
+                            “我想要飞机，有没有人发一下”
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: #64748b;">
+                            <span>👤 来自 <strong style="color: #94a3b8;">玩家_A</strong></span>
+                            <span>💎 悬赏 5 绿宝石</span>
+                        </div>
                     </div>
+                    <!-- 真实需求入口 -->
+                    <a href="requests.html" style="display: block; text-align: center; padding: 8px; background: rgba(251, 191, 36, 0.15); border-radius: 8px; color: #fbbf24; text-decoration: none; transition: background 0.2s; font-size: 0.85rem; border: 1px solid rgba(251, 191, 36, 0.2);">
+                        查看全部需求 →
+                    </a>
+                    <button onclick="location.href='requests.html'" class="btn btn-primary" style="width: 100%; margin-top: 8px; background: #fbbf24; color: #0f0f0f; font-weight: 600;">
+                        ✏️ 我也要发需求
+                    </button>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-// ===== 侧边栏组件（完整版，含绿宝石余额显示） =====
+// ===== 侧边栏组件（完整版，含绿宝石余额显示 + 求蓝图入口） =====
 
 (function loadSidebarCss() {
     if (!document.getElementById('sidebarCss')) {
@@ -36,6 +36,13 @@
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                 </span>
                 <span class="label">小应用</span>
+            </a>
+            <!-- ===== 新增：求蓝图入口 ===== -->
+            <a href="requests.html" class="nav-item" data-page="requests" style="background: rgba(251, 191, 36, 0.12); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25); margin: 0 6px; border-radius: 10px;">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" style="fill: none; stroke: #fbbf24;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                </span>
+                <span class="label" style="color: #fbbf24;">求蓝图</span>
             </a>
             <a href="https://www.ifdian.net/group/e832489c6d2211f1a55652540025c377" target="_blank" class="nav-item" id="feedbackNavItem" data-page="feedback" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.25); margin: 0 6px; border-radius: 10px;">
                 <span class="icon">
