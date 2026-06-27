@@ -100,16 +100,12 @@ function updateNavbar() {
     }
 }
 // ===== 全局点击音效（任何点击都发声） =====
+// ===== 全局点击音效（捕获阶段） =====
 document.addEventListener('click', function(e) {
-    // 输入框、文本区域、下拉菜单不触发（避免打字时的误触）
     const tag = e.target.tagName.toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select') {
-        return;
-    }
-
     try {
         const audio = new Audio('click.mp3');
         audio.volume = 0.25;
         audio.play().catch(() => {});
     } catch (err) {}
-});
+}, true);  // 捕获阶段
