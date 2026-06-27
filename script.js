@@ -109,7 +109,7 @@ document.addEventListener('click', function(e) {
 
     try {
         const audio = new Audio('click.ogg');
-        audio.volume = 0.3;  // 音量 30%，可以自己调
+        audio.volume = 0.5;  // 音量 30%，可以自己调
         audio.play().catch(() => {});
     } catch (err) {
         // 静默失败，不影响功能
