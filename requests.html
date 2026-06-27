@@ -150,6 +150,15 @@
             padding: 4px 12px;
             font-size: 0.8rem;
         }
+        .balance-warning {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            display: none;
+        }
+        .balance-warning.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -224,8 +233,9 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>悬赏绿宝石（可选）</label>
+                    <label>悬赏绿宝石</label>
                     <input type="number" id="reqReward" value="0" min="0" max="100">
+                    <div id="balanceWarning" class="balance-warning">⚠️ 余额不足，当前余额：<span id="currentBalanceDisplay">0</span> 绿宝石</div>
                 </div>
                 <div class="btn-row">
                     <button type="button" class="btn btn-secondary" onclick="closeNewRequest()">取消</button>
@@ -239,6 +249,29 @@
     <script src="sidebar.js"></script>
     <script>
         let currentFilter = '';
+
+        // ===== 播放扣费音效 =====
+        function playCostSound() {
+            try {
+                const audio = new Audio('orb.mp3');
+                audio.volume = 0.4;
+                audio.play().catch(() => {});
+            } catch (e) {}
+        }
+
+        // ===== 获取当前余额 =====
+        async function fetchBalance() {
+            try {
+                const res = await authFetch('/balance');
+                const data = await res.json();
+                if (data.success) {
+                    return data.balance;
+                }
+                return 0;
+            } catch (e) {
+                return 0;
+            }
+        }
 
         async function loadRequests() {
             const container = document.getElementById('requestList');
@@ -313,10 +346,32 @@
                 return;
             }
             document.getElementById('newRequestModal').classList.add('show');
+            // 显示当前余额
+            fetchBalance().then(balance => {
+                document.getElementById('currentBalanceDisplay').textContent = balance;
+            });
+            // 监听悬赏金额变化
+            document.getElementById('reqReward').addEventListener('input', function() {
+                const val = parseInt(this.value) || 0;
+                const warn = document.getElementById('balanceWarning');
+                if (val > 0) {
+                    fetchBalance().then(balance => {
+                        if (val > balance) {
+                            warn.textContent = `⚠️ 余额不足，当前余额：${balance} 绿宝石`;
+                            warn.classList.add('show');
+                        } else {
+                            warn.classList.remove('show');
+                        }
+                    });
+                } else {
+                    warn.classList.remove('show');
+                }
+            });
         }
 
         function closeNewRequest() {
             document.getElementById('newRequestModal').classList.remove('show');
+            document.getElementById('balanceWarning').classList.remove('show');
         }
 
         document.getElementById('requestForm').addEventListener('submit', async (e) => {
@@ -332,6 +387,13 @@
                 return;
             }
 
+            // 检查余额
+            const balance = await fetchBalance();
+            if (reward > balance) {
+                showMessage(`绿宝石不足（当前 ${balance}，需要 ${reward}）`, 'error');
+                return;
+            }
+
             try {
                 const res = await authFetch('/requests', {
                     method: 'POST',
@@ -339,10 +401,23 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showMessage('需求已提交！', 'success');
+                    // 播放扣费音效
+                    playCostSound();
+                    
+                    showMessage(`需求已提交！${reward > 0 ? ' 扣除 ' + reward + ' 绿宝石' : ''}`, 'success');
                     closeNewRequest();
                     document.getElementById('requestForm').reset();
                     loadRequests();
+                    
+                    // ===== 刷新侧边栏余额 =====
+                    if (data.newBalance !== undefined) {
+                        if (window.updateSidebarBalance) {
+                            window.updateSidebarBalance(data.newBalance);
+                        }
+                        // 也更新本地显示的余额
+                        const balanceEl = document.getElementById('balanceAmount');
+                        if (balanceEl) balanceEl.textContent = data.newBalance;
+                    }
                 } else {
                     showMessage(data.error, 'error');
                 }
@@ -373,8 +448,14 @@
                 const res = await authFetch(`/requests/${id}`, { method: 'DELETE' });
                 const data = await res.json();
                 if (data.success) {
-                    showMessage('已删除', 'success');
+                    showMessage('已删除，悬赏已退还', 'success');
                     loadRequests();
+                    // 刷新余额
+                    fetchBalance().then(balance => {
+                        if (window.updateSidebarBalance) {
+                            window.updateSidebarBalance(balance);
+                        }
+                    });
                 } else {
                     showMessage(data.error, 'error');
                 }
