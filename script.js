@@ -108,7 +108,7 @@ document.addEventListener('click', function(e) {
     }
 
     try {
-        const audio = new Audio('click.ogg');
+        const audio = new Audio('click.mp3');
         audio.volume = 0.5;  // 音量 30%，可以自己调
         audio.play().catch(() => {});
     } catch (err) {
