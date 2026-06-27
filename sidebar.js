@@ -1,6 +1,5 @@
-// ===== 侧边栏组件（完整版）=====
+// ===== 侧边栏组件（完整版，含绿宝石余额显示） =====
 
-// 1. 自动加载侧边栏专用 CSS
 (function loadSidebarCss() {
     if (!document.getElementById('sidebarCss')) {
         const link = document.createElement('link');
@@ -11,7 +10,6 @@
     }
 })();
 
-// 2. 注入侧边栏 HTML
 (function initSidebar() {
     const sidebarHTML = `
         <nav class="floating-sidebar" id="floatingSidebar">
@@ -31,7 +29,7 @@
                 <span class="icon">
                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>
-                <span class="label">个人中心</span>
+                <span class="label">我的蓝图</span>
             </a>
             <a href="apps.html" class="nav-item" data-page="apps">
                 <span class="icon">
@@ -39,15 +37,13 @@
                 </span>
                 <span class="label">小应用</span>
             </a>
-            <!-- 反馈按钮（蓝色突出） -->
-            <a href="https://www.ifdian.net/group/e832489c6d2211f1a55652540025c377?utm_source=copylink&utm_medium=link" target="_blank" class="nav-item" id="feedbackNavItem" data-page="feedback" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.25); margin: 0 6px; border-radius: 10px;">
+            <a href="https://www.ifdian.net/group/e832489c6d2211f1a55652540025c377" target="_blank" class="nav-item" id="feedbackNavItem" data-page="feedback" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.25); margin: 0 6px; border-radius: 10px;">
                 <span class="icon">
                     <svg viewBox="0 0 24 24" style="fill: none; stroke: #3b82f6;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                 </span>
                 <span class="label" style="color: #3b82f6;">反馈</span>
             </a>
             <div class="divider"></div>
-            <!-- 赞助按钮（紫色突出） -->
             <a href="https://www.ifdian.net/a/creatmodel" target="_blank" class="nav-item" id="sponsorNavItem" data-page="sponsor" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); margin: 0 6px; border-radius: 10px;">
                 <span class="icon">
                     <svg viewBox="0 0 24 24" style="fill: #a855f7; stroke: #a855f7;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -64,12 +60,10 @@
         </nav>
     `;
 
-    // 只在侧边栏不存在时注入
     if (!document.getElementById('floatingSidebar')) {
         document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
     }
 
-    // 高亮当前页面
     const currentPath = window.location.pathname;
     document.querySelectorAll('.nav-item').forEach(el => {
         const href = el.getAttribute('href');
@@ -78,23 +72,56 @@
         }
     });
 
-    // 登录状态更新
+    // 登录状态更新 + 余额显示
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const loginItem = document.getElementById('loginNavItem');
     const loginLabel = document.getElementById('loginLabel');
+
     if (token && username) {
         loginLabel.textContent = username;
         loginItem.href = 'profile.html';
+
+        // 获取并显示余额
+        const baseUrl = window.API_URL || 'https://energetic-presence-production.up.railway.app/api';
+        fetch(`${baseUrl}/balance`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const existingBalance = document.getElementById('balanceDisplay');
+                if (existingBalance) existingBalance.remove();
+
+                const balanceEl = document.createElement('div');
+                balanceEl.id = 'balanceDisplay';
+                balanceEl.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 4px 12px;
+                    background: #0f172a;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    color: #38bdf8;
+                    margin: 4px 8px 0 8px;
+                    justify-content: center;
+                `;
+                balanceEl.innerHTML = `
+                    <img src="money.png" style="width:18px;height:18px;image-rendering:pixelated;" alt="绿宝石">
+                    <span id="balanceAmount">${data.balance}</span>
+                `;
+                loginItem.parentNode.insertBefore(balanceEl, loginItem.nextSibling);
+            }
+        })
+        .catch(() => {});
     } else {
         loginLabel.textContent = '登录';
         loginItem.href = 'login.html';
     }
 })();
 
-// 3. 自定义背景上传
 (function initBg() {
-    // 加载保存的背景
     function loadBg() {
         const savedBg = localStorage.getItem('customBg');
         if (savedBg) {
@@ -127,7 +154,6 @@
     }
     loadBg();
 
-    // 背景上传按钮
     if (!document.querySelector('.bg-upload-btn')) {
         const uploadBtn = document.createElement('div');
         uploadBtn.className = 'bg-upload-btn';
@@ -140,7 +166,6 @@
         `;
         document.body.appendChild(uploadBtn);
 
-        // 上传事件
         document.getElementById('bgUpload')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -158,7 +183,6 @@
             reader.readAsDataURL(file);
         });
 
-        // 双击清除背景
         uploadBtn.addEventListener('dblclick', function() {
             if (confirm('确定要清除自定义背景吗？')) {
                 localStorage.removeItem('customBg');
@@ -206,3 +230,9 @@
     `;
     document.head.appendChild(animStyle);
 })();
+
+// 暴露更新余额的函数，供其他页面调用
+window.updateSidebarBalance = function(balance) {
+    const el = document.getElementById('balanceAmount');
+    if (el) el.textContent = balance;
+};
