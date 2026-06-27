@@ -1,5 +1,6 @@
 // API 地址 - 改成你的 Railway 公网 HTTPS 地址
 const API_URL = 'https://energetic-presence-production.up.railway.app/api';
+const BASE_URL = 'https://energetic-presence-production.up.railway.app';
 
 function showMessage(text, type = 'success') {
     const msg = document.createElement('div');
