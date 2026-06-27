@@ -6,6 +6,8 @@
     <title>个人中心 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
+    <!-- ===== 新增：matter.js 物理引擎 ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
         .profile-container {
             max-width: 1200px;
@@ -13,13 +15,12 @@
             padding: 40px 24px;
         }
 
-        /* ===== 头像 + 背景 ===== */
         .profile-header {
             position: relative;
             background: #1e293b;
             border-radius: 16px;
-            overflow: visible;      /* ✅ 允许头像溢出 */
-            margin-bottom: 50px;    /* ✅ 为溢出的头像留空间 */
+            overflow: visible;
+            margin-bottom: 50px;
             border: 1px solid #334155;
         }
 
@@ -30,8 +31,8 @@
             background-size: cover;
             background-position: center;
             background-color: #1e293b;
-            border-radius: 16px 16px 0 0;  /* 只有上方圆角 */
-            overflow: hidden;               /* 防止背景图撑破圆角 */
+            border-radius: 16px 16px 0 0;
+            overflow: hidden;
         }
 
         .profile-bg img {
@@ -51,7 +52,7 @@
             background: #0f172a;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            z-index: 10;            /* ✅ 确保在最上层 */
+            z-index: 10;
         }
 
         .profile-avatar img {
@@ -110,7 +111,6 @@
             font-size: 0.8rem;
         }
 
-        /* ===== 编辑弹窗 ===== */
         .edit-modal {
             display: none;
             position: fixed;
@@ -191,7 +191,6 @@
             margin-top: 20px;
         }
 
-        /* ===== 蓝图列表 ===== */
         .blueprint-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -211,16 +210,76 @@
             color: #94a3b8;
         }
 
-        /* ===== 移动端适配 ===== */
+        /* ===== 新增：绿宝石展示区样式 ===== */
+        .emerald-section {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 24px;
+            border: 1px solid #1e293b;
+        }
+        .emerald-section h3 {
+            color: #38bdf8;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .emerald-balance {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #0a0f1a;
+            border-radius: 8px;
+        }
+        .emerald-balance .label {
+            color: #94a3b8;
+        }
+        .emerald-balance .amount {
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .emerald-balance .amount img {
+            width: 24px;
+            height: 24px;
+            image-rendering: pixelated;
+        }
+        #dailyCheckinBtn {
+            margin-top: 8px;
+            width: 100%;
+        }
+        #emeraldPhysicsContainer {
+            width: 100%;
+            height: 300px;
+            background: #0a0f1a;
+            border-radius: 12px;
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+        #emeraldPhysicsContainer canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: pointer;
+        }
+        .emerald-owner-only {
+            opacity: 0.8;
+        }
+
         @media (max-width: 768px) {
             .profile-bg {
-                height: 140px;          /* 移动端背景矮一点 */
+                height: 140px;
             }
             .profile-avatar {
                 left: 20px;
                 width: 70px;
                 height: 70px;
-                bottom: -30px;          /* 配合更小的头像 */
+                bottom: -30px;
                 border-width: 3px;
             }
             .profile-info {
@@ -228,6 +287,9 @@
             }
             .profile-info .username {
                 font-size: 1.3rem;
+            }
+            #emeraldPhysicsContainer {
+                height: 200px;
             }
         }
     </style>
@@ -288,6 +350,9 @@
         let currentUserId = null;
         let isOwnProfile = false;
         let userData = null;
+        // ===== 新增：物理引擎变量 =====
+        let physicsEngine = null;
+        let emeraldBodies = [];
 
         function getUserIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
@@ -380,6 +445,30 @@
                 blueprintsHtml += '</div>';
             }
 
+            // ===== 新增：绿宝石展示区 =====
+            const emeraldCount = user.emeralds || 0;
+            const emeraldHtml = `
+                <div class="emerald-section">
+                    <h3>💎 绿宝石钱包</h3>
+                    <div class="emerald-balance">
+                        <span class="label">余额</span>
+                        <span class="amount">
+                            <img src="money.png" alt="绿宝石">
+                            <span id="emeraldBalanceDisplay">${emeraldCount}</span>
+                        </span>
+                    </div>
+                    ${isOwner ? `
+                        <button id="dailyCheckinBtn" class="btn btn-outline">每日签到 (+5)</button>
+                        <div style="font-size:0.7rem;color:#64748b;margin-top:4px;">发布蓝图获得3绿宝石 · 下载消耗1绿宝石</div>
+                    ` : `
+                        <div style="font-size:0.7rem;color:#64748b;margin-top:4px;">绿宝石数量: ${emeraldCount}</div>
+                    `}
+                    <div id="emeraldPhysicsContainer">
+                        <canvas id="emeraldCanvas"></canvas>
+                    </div>
+                </div>
+            `;
+
             container.innerHTML = `
                 <div class="profile-header">
                     <div class="profile-bg" style="${bgStyle}">
@@ -398,11 +487,222 @@
                     </div>
                 </div>
 
+                ${emeraldHtml}
+
                 <h2 style="margin: 32px 0 16px; color: #e2e8f0;">发布的蓝图</h2>
                 ${blueprintsHtml}
             `;
 
             updateNavbar();
+
+            // ===== 初始化物理效果 =====
+            setTimeout(() => {
+                initEmeraldPhysics(emeraldCount, isOwner);
+            }, 300);
+
+            // ===== 绑定签到按钮 =====
+            if (isOwner) {
+                const dailyBtn = document.getElementById('dailyCheckinBtn');
+                if (dailyBtn) {
+                    // 移除旧监听器（避免重复绑定）
+                    dailyBtn.replaceWith(dailyBtn.cloneNode(true));
+                    const newBtn = document.getElementById('dailyCheckinBtn');
+                    if (newBtn) {
+                        newBtn.addEventListener('click', async function() {
+                            try {
+                                const res = await authFetch('/daily', { method: 'POST' });
+                                const data = await res.json();
+                                if (data.success) {
+                                    showMessage('签到成功！+5 绿宝石', 'success');
+                                    document.getElementById('emeraldBalanceDisplay').textContent = data.balance;
+                                    // 重新初始化物理
+                                    initEmeraldPhysics(data.balance, isOwner);
+                                    // 更新侧边栏余额
+                                    if (window.updateSidebarBalance) {
+                                        window.updateSidebarBalance(data.balance);
+                                    }
+                                } else {
+                                    showMessage(data.error || '签到失败', 'error');
+                                }
+                            } catch (e) {
+                                showMessage('签到失败：' + e.message, 'error');
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        // ===== 新增：物理引擎初始化 =====
+        function initEmeraldPhysics(count, interactive) {
+            const container = document.getElementById('emeraldPhysicsContainer');
+            const canvas = document.getElementById('emeraldCanvas');
+            if (!canvas || !container) return;
+
+            // 清理旧引擎
+            if (physicsEngine) {
+                if (physicsEngine.runner) Matter.Runner.stop(physicsEngine.runner);
+                if (physicsEngine.render) Matter.Render.stop(physicsEngine.render);
+                if (physicsEngine.engine) Matter.Engine.clear(physicsEngine.engine);
+                physicsEngine = null;
+            }
+            emeraldBodies = [];
+
+            const rect = container.getBoundingClientRect();
+            const width = rect.width || 500;
+            const height = rect.height || 300;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+
+            const { Engine, Render, Runner, Bodies, World, Events, Mouse, MouseConstraint, Body } = Matter;
+
+            const engine = Engine.create();
+            const world = engine.world;
+
+            const wallThickness = 30;
+            const ground = Bodies.rectangle(width/2, height + wallThickness/2, width + wallThickness*2, wallThickness, { isStatic: true, friction: 0.5, restitution: 0.1 });
+            const leftWall = Bodies.rectangle(-wallThickness/2, height/2, wallThickness, height*2, { isStatic: true });
+            const rightWall = Bodies.rectangle(width + wallThickness/2, height/2, wallThickness, height*2, { isStatic: true });
+            const ceiling = Bodies.rectangle(width/2, -wallThickness/2, width + wallThickness*2, wallThickness, { isStatic: true, friction: 0.5, restitution: 0.1 });
+            World.add(world, [ground, leftWall, rightWall, ceiling]);
+
+            const img = new Image();
+            img.src = 'money.png';
+            const emeraldSize = 20;
+            const maxCount = Math.min(count, 200);
+            const bodies = [];
+
+            for (let i = 0; i < maxCount; i++) {
+                const x = 20 + Math.random() * (width - 40);
+                const y = 20 + Math.random() * (height - 40);
+                const body = Bodies.circle(x, y, emeraldSize/2, {
+                    restitution: 0.3 + Math.random() * 0.2,
+                    friction: 0.3,
+                    density: 0.002 + Math.random() * 0.001,
+                    angle: Math.random() * Math.PI * 2
+                });
+                body.emeraldId = i;
+                bodies.push(body);
+            }
+            World.add(world, bodies);
+            emeraldBodies = bodies;
+
+            const render = Render.create({
+                canvas: canvas,
+                engine: engine,
+                options: {
+                    width: width,
+                    height: height,
+                    background: 'transparent',
+                    wireframes: false,
+                    showAngleIndicator: false
+                }
+            });
+
+            const ctx = canvas.getContext('2d');
+
+            function customRender() {
+                ctx.clearRect(0, 0, width, height);
+                for (const body of bodies) {
+                    const x = body.position.x;
+                    const y = body.position.y;
+                    const r = body.circleRadius || emeraldSize/2;
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(body.angle);
+                    if (img.complete && img.naturalWidth > 0) {
+                        ctx.drawImage(img, -r, -r, r*2, r*2);
+                    } else {
+                        const gradient = ctx.createRadialGradient(-r*0.3, -r*0.3, 0, 0, 0, r);
+                        gradient.addColorStop(0, '#5dff8a');
+                        gradient.addColorStop(0.6, '#2ecc71');
+                        gradient.addColorStop(1, '#1a9c54');
+                        ctx.beginPath();
+                        ctx.arc(0, 0, r, 0, Math.PI*2);
+                        ctx.fillStyle = gradient;
+                        ctx.fill();
+                        ctx.strokeStyle = '#1a7a44';
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                        ctx.shadowColor = 'rgba(46, 204, 113, 0.3)';
+                        ctx.shadowBlur = 10;
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+                if (!img.complete || img.naturalWidth === 0) {
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText('加载 money.png 中...', 10, 20);
+                }
+            }
+
+            Events.on(engine, 'afterUpdate', function() {
+                customRender();
+            });
+
+            // 鼠标交互（仅当 interactive 为 true 时启用）
+            if (interactive) {
+                const mouse = Mouse.create(canvas);
+                const mouseConstraint = MouseConstraint.create(engine, {
+                    mouse: mouse,
+                    constraint: {
+                        stiffness: 0.2,
+                        render: { visible: false }
+                    }
+                });
+                mouseConstraint.collisionFilter.mask = 0;
+
+                let mouseDown = false;
+                Events.on(mouseConstraint, 'mousedown', function(e) {
+                    mouseDown = true;
+                });
+                Events.on(mouseConstraint, 'mouseup', function(e) {
+                    mouseDown = false;
+                });
+
+                Events.on(engine, 'afterUpdate', function() {
+                    if (mouseDown) {
+                        const forceRadius = 80;
+                        const strength = 0.003;
+                        const mousePos = { x: mouse.position.x, y: mouse.position.y };
+                        for (const body of bodies) {
+                            const dx = body.position.x - mousePos.x;
+                            const dy = body.position.y - mousePos.y;
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            if (dist < forceRadius && dist > 1) {
+                                const force = strength * (forceRadius - dist) / forceRadius;
+                                const angle = Math.atan2(dy, dx);
+                                Body.applyForce(body, body.position, {
+                                    x: force * Math.cos(angle) * 0.5,
+                                    y: force * Math.sin(angle) * 0.5
+                                });
+                            }
+                        }
+                    }
+                });
+
+                canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+            }
+
+            Render.run(render);
+            const runner = Runner.create();
+            Runner.run(runner, engine);
+
+            physicsEngine = { engine, render, runner, bodies };
+
+            function resizeCanvas() {
+                const newRect = container.getBoundingClientRect();
+                if (newRect.width > 0 && newRect.height > 0) {
+                    canvas.width = newRect.width;
+                    canvas.height = newRect.height;
+                    render.options.width = newRect.width;
+                    render.options.height = newRect.height;
+                }
+            }
+            window.addEventListener('resize', resizeCanvas);
         }
 
         function openEditModal() {

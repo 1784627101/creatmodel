@@ -84,7 +84,7 @@ function updateNavbar() {
             navLinks.innerHTML = `
                 <a href="index.html" class="nav-link">首页</a>
                 <a href="publish.html" class="nav-link">发布蓝图</a>
-                <a href="profile.html" class="nav-link">我的发布</a>
+                <a href="profile.html" class="nav-link">个人中心</a>
                 <span class="nav-link" style="color:#3b82f6">${escapeHtml(username)}</span>
                 <button class="btn btn-outline" onclick="logout()">退出</button>
             `;
@@ -92,7 +92,7 @@ function updateNavbar() {
             navLinks.innerHTML = `
                 <a href="index.html" class="nav-link">首页</a>
                 <a href="publish.html" class="nav-link">发布蓝图</a>
-                <a href="profile.html" class="nav-link">我的发布</a>
+                <a href="profile.html" class="nav-link">个人中心</a>
                 <a href="login.html" class="btn btn-outline">登录</a>
                 <a href="register.html" class="btn btn-primary">注册</a>
             `;
