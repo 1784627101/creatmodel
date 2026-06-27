@@ -99,13 +99,25 @@ function updateNavbar() {
         }
     }
 }
-// ===== 全局点击音效（任何点击都发声） =====
-// ===== 全局点击音效（捕获阶段） =====
+
 document.addEventListener('click', function(e) {
-    const tag = e.target.tagName.toLowerCase();
+    const target = e.target.closest('a');
+    if (target && target.href) {
+        e.preventDefault();
+        const href = target.href;
+        const audio = new Audio('click.mp3');
+        audio.volume = 0.25;
+        audio.play().then(() => {
+            setTimeout(() => { window.location.href = href; }, 200);
+        }).catch(() => {
+            window.location.href = href;
+        });
+        return;
+    }
+
     try {
         const audio = new Audio('click.mp3');
         audio.volume = 0.25;
         audio.play().catch(() => {});
     } catch (err) {}
-}, true);  // 捕获阶段
+}, true);
