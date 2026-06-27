@@ -41,53 +41,6 @@
             color: #64748b;
             font-size: 0.85rem;
         }
-        .nbt-card {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-        .nbt-card h4 {
-            color: #38bdf8;
-            margin-bottom: 12px;
-            font-size: 0.95rem;
-        }
-        .nbt-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 8px;
-        }
-        .nbt-grid .item {
-            background: #1e293b;
-            padding: 8px 12px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .nbt-grid .item .label {
-            color: #94a3b8;
-            font-size: 0.7rem;
-            display: block;
-        }
-        .nbt-grid .item .value {
-            color: #e2e8f0;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        .nbt-mods {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        .nbt-mods .tag {
-            background: #1e293b;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            color: #38bdf8;
-            border: 1px solid #334155;
-        }
         .detail-link .btn {
             display: inline-block;
         }
@@ -172,34 +125,6 @@
             const isOwner = loggedIn && localStorage.getItem('username') === bp.username;
             const parsed = parseMods(bp.description);
 
-            // ===== NBT 数据展示 =====
-            let nbtHtml = '';
-            const hasNbtData = bp.block_count || bp.entity_count || (bp.size_x || bp.size_y || bp.size_z) || bp.nbt_mods;
-            if (hasNbtData) {
-                const modsList = bp.nbt_mods ? bp.nbt_mods.split(',').filter(m => m.trim()) : [];
-                let modsHtml = '';
-                if (modsList.length > 0) {
-                    modsHtml = `<div class="nbt-mods">${modsList.map(m => `<span class="tag">${escapeHtml(m.trim())}</span>`).join('')}</div>`;
-                } else {
-                    modsHtml = '<span style="color:#64748b; font-size:0.85rem;">未检测到模组</span>';
-                }
-
-                nbtHtml = `
-                    <div class="nbt-card">
-                        <h4>📊 蓝图数据（自动解析）</h4>
-                        <div class="nbt-grid">
-                            ${bp.block_count ? `<div class="item"><span class="label">方块数</span><span class="value">${bp.block_count}</span></div>` : ''}
-                            ${bp.entity_count ? `<div class="item"><span class="label">实体数</span><span class="value">${bp.entity_count}</span></div>` : ''}
-                            ${(bp.size_x || bp.size_y || bp.size_z) ? `<div class="item"><span class="label">尺寸</span><span class="value">${bp.size_x || 0}×${bp.size_y || 0}×${bp.size_z || 0}</span></div>` : ''}
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <span style="color:#94a3b8; font-size:0.85rem;">检测到的模组</span>
-                            ${modsHtml}
-                        </div>
-                    </div>
-                `;
-            }
-
             container.innerHTML = `
                 <div class="detail-card">
                     ${bp.preview_image ? `<img src="${bp.preview_image}" class="detail-image" alt="${escapeHtml(bp.title)}">` : ''}
@@ -224,24 +149,63 @@
                         </div>
                     </div>
 
-                    ${nbtHtml}
-
                     <div class="detail-description">
                         <h3>描述</h3>
                         <p>${escapeHtml(parsed.text || '暂无描述')}</p>
                     </div>
+
+                    <!-- ===== 修改后的下载区域 ===== -->
                     <div class="detail-link">
-                        <h3>下载链接</h3>
-                        <a href="${escapeHtml(bp.original_link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" onclick="recordDownload()">点击下载</a>
-                        <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280; word-break: break-all;">链接：${escapeHtml(bp.original_link)}</p>
-                        <p style="margin-top: 4px; font-size: 0.7rem; color: #64748b;">下载量：${bp.downloads || 0}</p>
+                        <h3>下载蓝图</h3>
+                        ${loggedIn ? `
+                            <button class="btn btn-primary" onclick="downloadBlueprint(${bp.id})">点击下载</button>
+                            <p style="margin-top: 8px; font-size: 0.75rem; color: #64748b;">
+                                点击后生成临时下载链接，60秒内有效
+                            </p>
+                            <p style="margin-top: 4px; font-size: 0.7rem; color: #64748b;">下载量：${bp.downloads || 0}</p>
+                        ` : `
+                            <p style="color: #f97316; padding: 12px; background: #2a2a2a; border-radius: 8px;">
+                                请先 <a href="login.html" style="color: #3b82f6;">登录</a> 后下载
+                            </p>
+                        `}
                     </div>
+
                     <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
                         ${loggedIn ? `<button class="btn btn-outline" onclick="openReportModal()">举报</button>` : ''}
                         ${isOwner ? `<button class="btn btn-danger" onclick="deleteBlueprint()">删除</button>` : ''}
                     </div>
                 </div>
             `;
+        }
+
+        // ===== 新增：下载蓝图（通过临时链接） =====
+        async function downloadBlueprint(blueprintId) {
+            if (!isLoggedIn()) {
+                showMessage('请先登录再下载', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
+            try {
+                showMessage('正在生成下载链接...', 'success');
+
+                const response = await authFetch(`/download-token/${blueprintId}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // 跳转到重定向接口
+                    const baseUrl = API_URL.replace(/\/api$/, '');
+                    window.location.href = `${baseUrl}/redirect?token=${result.token}`;
+                } else {
+                    showMessage(result.error || '生成下载链接失败', 'error');
+                }
+            } catch (error) {
+                showMessage('下载失败：' + error.message, 'error');
+            }
         }
 
         function openReportModal() {
@@ -307,20 +271,10 @@
             }
         }
 
+        // 原 recordDownload 不再使用，但保留防止其他调用
         async function recordDownload() {
-            if (!currentBlueprint) return;
-            try {
-                await fetch(`${API_URL}/blueprints/${currentBlueprint.id}/download`, {
-                    method: 'POST'
-                });
-                currentBlueprint.downloads = (currentBlueprint.downloads || 0) + 1;
-                const downloadEl = document.querySelector('.detail-link p:last-child');
-                if (downloadEl) {
-                    downloadEl.textContent = `下载量：${currentBlueprint.downloads}`;
-                }
-            } catch (error) {
-                console.error('记录下载失败:', error);
-            }
+            // 已经被 downloadBlueprint 替代，不再使用
+            console.warn('recordDownload 已被 downloadBlueprint 替代');
         }
 
         window.addEventListener('click', (e) => {
