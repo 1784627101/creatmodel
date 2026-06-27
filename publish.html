@@ -6,8 +6,6 @@
     <title>发布蓝图 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
-    <!-- ===== 加载 prismarine-nbt（浏览器版） ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/prismarine-nbt@2.2.1/browser.js"></script>
     <style>
         .version-select {
             width: 100%;
@@ -23,80 +21,23 @@
             outline: none;
             border-color: #3b82f6;
         }
-        .nbt-upload-area {
-            border: 2px dashed #334155;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s;
+        #relatedRequest {
+            width: 100%;
+            padding: 12px 16px;
             background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
         }
-        .nbt-upload-area:hover {
+        #relatedRequest:focus {
+            outline: none;
             border-color: #3b82f6;
         }
-        .nbt-upload-area.dragover {
-            border-color: #22c55e;
-            background: #1a2a3a;
-        }
-        .nbt-upload-area input[type="file"] {
-            display: none;
-        }
-        .nbt-upload-area .icon {
-            font-size: 32px;
-            color: #64748b;
-        }
-        .nbt-upload-area .hint {
-            color: #94a3b8;
-            font-size: 0.85rem;
-            margin-top: 8px;
-        }
-        .file-name {
-            color: #22c55e;
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-        .nbt-info {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 12px;
-            display: none;
-        }
-        .nbt-info.show {
-            display: block;
-        }
-        .nbt-info .row {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-            border-bottom: 1px solid #2a3a5a;
-            font-size: 0.85rem;
-        }
-        .nbt-info .row:last-child {
-            border-bottom: none;
-        }
-        .nbt-info .label {
-            color: #94a3b8;
-        }
-        .nbt-info .value {
+        #relatedRequest option {
+            background: #1a1a1a;
             color: #e2e8f0;
-        }
-        .mod-tag {
-            display: inline-block;
-            background: #0f172a;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            color: #38bdf8;
-            border: 1px solid #334155;
-            margin: 2px 4px 2px 0;
-        }
-        .mod-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
         }
     </style>
 </head>
@@ -123,31 +64,6 @@
             </div>
 
             <form id="publishForm" style="display: none;">
-                <!-- NBT 上传 -->
-                <div class="form-group">
-                    <label>上传蓝图文件（可选，自动解析）</label>
-                    <div class="nbt-upload-area" id="nbtDropZone">
-                        <div class="icon">📂</div>
-                        <div class="hint">点击选择或拖拽上传（测试，可能没用） <strong>.nbt</strong> 或 <strong>.dat</strong> 文件</div>
-                        <input type="file" id="nbtFileInput" accept=".nbt,.dat">
-                        <div id="nbtFileName" class="file-name"></div>
-                    </div>
-                    <div id="nbtInfo" class="nbt-info">
-                        <div class="row"><span class="label">蓝图名称</span><span class="value" id="nbtName">-</span></div>
-                        <div class="row"><span class="label">方块总数</span><span class="value" id="nbtBlocks">-</span></div>
-                        <div class="row"><span class="label">实体数量</span><span class="value" id="nbtEntities">-</span></div>
-                        <div class="row"><span class="label">尺寸 (X×Y×Z)</span><span class="value" id="nbtSize">-</span></div>
-                        <div class="row" style="flex-wrap:wrap;"><span class="label">检测到的模组</span><span class="mod-list" id="nbtModsList"><span style="color:#64748b;">未检测到</span></span></div>
-                    </div>
-                    <input type="hidden" id="nbtBlockCount" value="0">
-                    <input type="hidden" id="nbtEntityCount" value="0">
-                    <input type="hidden" id="nbtSizeX" value="0">
-                    <input type="hidden" id="nbtSizeY" value="0">
-                    <input type="hidden" id="nbtSizeZ" value="0">
-                    <input type="hidden" id="nbtModsListHidden" value="">
-                    <small style="color: #6b7280;">上传后自动解析，无需手动填写</small>
-                </div>
-
                 <div class="form-group">
                     <label>标题 *</label>
                     <input type="text" id="title" placeholder="例如：全自动熔炉阵列" maxlength="200" required>
@@ -168,7 +84,7 @@
                     </div>
                     <div id="modTagsContainer" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;"></div>
                     <input type="hidden" id="modsListHidden" value="">
-                    <small style="color: #6b7280;">也可通过上传 NBT 文件自动识别</small>
+                    <small style="color: #6b7280;">输入模组名称，点击添加，支持多个模组</small>
                 </div>
 
                 <!-- 预览图 -->
@@ -218,6 +134,15 @@
                     </select>
                 </div>
 
+                <!-- ===== 关联需求 ===== -->
+                <div class="form-group">
+                    <label>关联需求（可选）</label>
+                    <select id="relatedRequest">
+                        <option value="">不关联</option>
+                    </select>
+                    <small style="color: #6b7280;">如果你正在接单，选择对应的需求，完成后自动发放悬赏</small>
+                </div>
+
                 <!-- 链接 -->
                 <div class="form-group">
                     <label>下载链接 *</label>
@@ -236,7 +161,7 @@
         </div>
     </main>
 
-    <!-- ========== 免责声明弹窗（完整版） ========== -->
+    <!-- 免责声明弹窗 -->
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
@@ -277,7 +202,7 @@
 
         function renderModTags() {
             if (modsList.length === 0) {
-                modTagsContainer.innerHTML = '<span style="color:#64748b; font-size:0.85rem;">暂无模组，请添加或上传NBT自动识别</span>';
+                modTagsContainer.innerHTML = '<span style="color:#64748b; font-size:0.85rem;">暂无模组，请添加</span>';
                 modsListHidden.value = '';
                 return;
             }
@@ -315,192 +240,6 @@
         clearModsBtn.addEventListener('click', function() {
             if (modsList.length === 0) return;
             if (confirm('确定清空所有模组吗？')) { modsList = []; renderModTags(); }
-        });
-
-        // ===== NBT 解析（修复：使用 window.nbt） =====
-        const MOD_ID_MAP = {
-            'create': '机械动力',
-            'createaddition': 'Create Crafts & Additions',
-            'create_connected': 'Create Connected',
-            'createdeco': 'Create Deco',
-            'create_jetpack': 'Create Jetpack',
-            'create_stuff_additions': 'Create Stuff Additions',
-            'creategoggles': 'Create Goggles',
-            'create_enchantment_industry': 'Create Enchantment Industry',
-            'create_optical': 'Create Optical',
-            'create_sifter': 'Create Sifter',
-            'create_tweaked_controllers': 'Create Tweaked Controllers',
-            'create_central_kitchen': 'Create Central Kitchen',
-            'create_crystal_clear': 'Create Crystal Clear',
-            'create_mechanical_extruder': 'Create Mechanical Extruder',
-            'create_ore_excavation': 'Create Ore Excavation',
-            'create_power_loader': 'Create Power Loader',
-            'create_robotics': 'Create Robotics',
-            'create_sapling': 'Create Sapling',
-            'create_steam_heated': 'Create Steam Heated',
-            'create_tank': 'Create Tank',
-            'create_train_perspective': 'Create Train Perspective',
-            'minecraft': 'Minecraft',
-            'forge': 'Forge',
-            'neoforge': 'NeoForge'
-        };
-        const MOD_KEYWORDS = ['create', 'minecraft', 'forge', 'neoforge', 'thermal', 'industrial', 'mechanical', 'steam', 'rotational'];
-
-        function parseNBTFile(arrayBuffer) {
-            try {
-                // ✅ 使用 window.nbt（CDN 暴露的全局对象）
-                const nbtLib = window.nbt || window.NBT;
-                if (!nbtLib) {
-                    throw new Error('NBT 库未加载，请刷新页面重试');
-                }
-                // 解析
-                const parsed = nbtLib.parse(arrayBuffer);
-                // 如果返回的是包含 value 的对象（某些版本）
-                const root = parsed.value || parsed;
-                // 简化（将 Tag 转为 JS 对象）
-                const data = nbtLib.simplify(root);
-
-                let info = {
-                    name: '未知',
-                    blockCount: 0,
-                    entityCount: 0,
-                    size: { x: 0, y: 0, z: 0 },
-                    mods: []
-                };
-
-                if (data.name) info.name = data.name;
-                else if (data.Name) info.name = data.Name;
-                else if (data.id && typeof data.id === 'string') info.name = data.id;
-
-                if (data.blockCount !== undefined) info.blockCount = data.blockCount;
-                else if (data.BlockCount !== undefined) info.blockCount = data.BlockCount;
-                else if (data.blocks && Array.isArray(data.blocks)) info.blockCount = data.blocks.length;
-
-                if (data.entityCount !== undefined) info.entityCount = data.entityCount;
-                else if (data.EntityCount !== undefined) info.entityCount = data.EntityCount;
-                else if (data.entities && Array.isArray(data.entities)) info.entityCount = data.entities.length;
-
-                if (data.size) {
-                    if (data.size.x) info.size.x = data.size.x;
-                    if (data.size.y) info.size.y = data.size.y;
-                    if (data.size.z) info.size.z = data.size.z;
-                }
-                if (data.Size) {
-                    if (data.Size.x) info.size.x = data.Size.x;
-                    if (data.Size.y) info.size.y = data.Size.y;
-                    if (data.Size.z) info.size.z = data.Size.z;
-                }
-
-                const foundMods = new Set();
-                const jsonStr = JSON.stringify(data);
-                for (const [key, value] of Object.entries(MOD_ID_MAP)) {
-                    if (jsonStr.includes(key)) {
-                        foundMods.add(value);
-                    }
-                }
-                for (const keyword of MOD_KEYWORDS) {
-                    if (jsonStr.includes(keyword) && !foundMods.has(keyword)) {
-                        const mapped = MOD_ID_MAP[keyword];
-                        if (mapped) foundMods.add(mapped);
-                    }
-                }
-                info.mods = Array.from(foundMods);
-                if (info.mods.length === 0 && jsonStr.includes('minecraft')) {
-                    info.mods.push('Minecraft');
-                }
-                if (info.mods.length === 0) {
-                    info.mods.push('未知模组（请手动添加）');
-                }
-                return info;
-            } catch (error) {
-                console.error('NBT 解析失败:', error);
-                return null;
-            }
-        }
-
-        // ===== NBT 文件处理 =====
-        const nbtDropZone = document.getElementById('nbtDropZone');
-        const nbtFileInput = document.getElementById('nbtFileInput');
-        const nbtFileName = document.getElementById('nbtFileName');
-        const nbtInfo = document.getElementById('nbtInfo');
-
-        function handleNBTFile(file) {
-            if (!file) return;
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (!['nbt', 'dat'].includes(ext)) {
-                alert('请上传 .nbt 或 .dat 文件');
-                return;
-            }
-            nbtFileName.textContent = '📄 已选择: ' + file.name;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const arrayBuffer = e.target.result;
-                    const info = parseNBTFile(arrayBuffer);
-                    if (!info) {
-                        alert('NBT 文件解析失败，请确认文件格式正确');
-                        return;
-                    }
-                    document.getElementById('nbtName').textContent = info.name;
-                    document.getElementById('nbtBlocks').textContent = info.blockCount || 0;
-                    document.getElementById('nbtEntities').textContent = info.entityCount || 0;
-                    document.getElementById('nbtSize').textContent = `${info.size.x || 0} × ${info.size.y || 0} × ${info.size.z || 0}`;
-
-                    const modsListEl = document.getElementById('nbtModsList');
-                    if (info.mods && info.mods.length > 0 && info.mods[0] !== '未知模组（请手动添加）') {
-                        modsListEl.innerHTML = info.mods.map(m => `<span class="mod-tag">${escapeHtml(m)}</span>`).join('');
-                        info.mods.forEach(mod => {
-                            if (mod !== '未知模组（请手动添加）' && !modsList.includes(mod)) {
-                                modsList.push(mod);
-                            }
-                        });
-                        renderModTags();
-                    } else {
-                        modsListEl.innerHTML = '<span style="color:#64748b;">未检测到已知模组</span>';
-                    }
-
-                    document.getElementById('nbtBlockCount').value = info.blockCount || 0;
-                    document.getElementById('nbtEntityCount').value = info.entityCount || 0;
-                    document.getElementById('nbtSizeX').value = info.size.x || 0;
-                    document.getElementById('nbtSizeY').value = info.size.y || 0;
-                    document.getElementById('nbtSizeZ').value = info.size.z || 0;
-                    document.getElementById('nbtModsListHidden').value = info.mods.join(',');
-
-                    nbtInfo.classList.add('show');
-                } catch (error) {
-                    console.error('解析失败:', error);
-                    alert('解析失败: ' + error.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        nbtDropZone.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT') {
-                nbtFileInput.click();
-            }
-        });
-        nbtFileInput.addEventListener('change', function(e) {
-            if (this.files.length > 0) {
-                handleNBTFile(this.files[0]);
-            }
-        });
-        nbtDropZone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('dragover');
-        });
-        nbtDropZone.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.classList.remove('dragover');
-        });
-        nbtDropZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleNBTFile(files[0]);
-                nbtFileInput.files = files;
-            }
         });
 
         // ===== 图片上传 =====
@@ -542,6 +281,28 @@
             document.getElementById('imageUpload').value = '';
         });
 
+        // ===== 加载可关联的需求 =====
+        async function loadRelatedRequests() {
+            const select = document.getElementById('relatedRequest');
+            if (!select) return;
+            try {
+                const res = await authFetch('/requests?status=in_progress');
+                const data = await res.json();
+                select.innerHTML = '<option value="">不关联</option>';
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(req => {
+                        const opt = document.createElement('option');
+                        opt.value = req.id;
+                        const rewardText = req.reward > 0 ? ` (悬赏 ${req.reward} 绿宝石)` : '';
+                        opt.textContent = `${req.title}${rewardText}`;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.warn('加载需求失败:', e);
+            }
+        }
+
         // ===== 免责声明弹窗 =====
         document.getElementById('showDisclaimer')?.addEventListener('click', (e) => {
             e.preventDefault();
@@ -569,13 +330,7 @@
             const createVersion = document.getElementById('createVersion').value;
             const previewImage = document.getElementById('previewImage').value;
             const disclaimer = document.getElementById('disclaimer').checked;
-
-            const blockCount = parseInt(document.getElementById('nbtBlockCount').value) || 0;
-            const entityCount = parseInt(document.getElementById('nbtEntityCount').value) || 0;
-            const sizeX = parseInt(document.getElementById('nbtSizeX').value) || 0;
-            const sizeY = parseInt(document.getElementById('nbtSizeY').value) || 0;
-            const sizeZ = parseInt(document.getElementById('nbtSizeZ').value) || 0;
-            const nbtMods = document.getElementById('nbtModsListHidden').value || '';
+            const relatedRequestId = document.getElementById('relatedRequest').value || '';
 
             if (!title) { showMessage('请输入标题', 'error'); return; }
             if (!link) { showMessage('请输入链接', 'error'); return; }
@@ -603,17 +358,16 @@
                         mcVersion,
                         createVersion,
                         previewImage,
-                        blockCount,
-                        entityCount,
-                        sizeX,
-                        sizeY,
-                        sizeZ,
-                        nbtMods
+                        relatedRequestId
                     })
                 });
                 const result = await response.json();
                 if (result.success) {
-                    showMessage('发布成功！', 'success');
+                    let msg = '发布成功！';
+                    if (result.relatedRequest && result.relatedRequest.reward > 0) {
+                        msg += ` 关联需求完成，获得 ${result.relatedRequest.reward} 绿宝石悬赏！`;
+                    }
+                    showMessage(msg, 'success');
                     setTimeout(() => {
                         window.location.href = `blueprint.html?id=${result.data.id}`;
                     }, 1500);
@@ -653,11 +407,7 @@
         checkLogin();
         updateNavbar();
         renderModTags();
-
-        // 检测 NBT 库是否加载成功
-        if (typeof window.nbt === 'undefined') {
-            console.warn('prismarine-nbt 库未加载，请检查网络或刷新重试');
-        }
+        loadRelatedRequests();
     </script>
 </body>
 </html>
