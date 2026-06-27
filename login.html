@@ -8,79 +8,6 @@
     <link rel="icon" type="image/svg+xml" href="page.svg">
 </head>
 <body>
-
-    <!-- ===== Minecraft 风格标题 ===== -->
-    <div id="minecraftTitle" style="
-        text-align: center;
-        padding: 20px 0 0 0;
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        font-size: 28px;
-        color: #FFD700;
-        text-shadow: 
-            2px 2px 0 #8B7500,
-            4px 4px 8px rgba(0,0,0,0.8),
-            0 0 20px rgba(255,215,0,0.2);
-        letter-spacing: 2px;
-        transition: transform 0.6s ease, text-shadow 0.6s ease;
-        transform-origin: center;
-        cursor: default;
-        user-select: none;
-    ">
-        共建机械动力中文蓝图库
-    </div>
-
-    <style>
-        #minecraftTitle.glowing {
-            text-shadow: 
-                2px 2px 0 #8B7500,
-                4px 4px 8px rgba(0,0,0,0.8),
-                0 0 30px rgba(255,215,0,0.6),
-                0 0 60px rgba(255,215,0,0.2);
-        }
-    </style>
-
-    <script>
-        (function() {
-            const title = document.getElementById('minecraftTitle');
-            if (!title) return;
-
-            function randomScale() {
-                const scale = 0.85 + Math.random() * 0.3;
-                const duration = 400 + Math.random() * 400;
-
-                title.style.transition = `transform ${duration}ms ease, text-shadow ${duration}ms ease`;
-                title.style.transform = `scale(${scale})`;
-
-                if (Math.random() > 0.4) {
-                    title.classList.add('glowing');
-                } else {
-                    title.classList.remove('glowing');
-                }
-
-                setTimeout(() => {
-                    title.style.transition = `transform 400ms ease, text-shadow 400ms ease`;
-                    title.style.transform = 'scale(1)';
-                    title.classList.remove('glowing');
-                }, duration + 100);
-            }
-
-            function startLoop() {
-                const delay = 1500 + Math.random() * 2500;
-                setTimeout(() => {
-                    randomScale();
-                    startLoop();
-                }, delay);
-            }
-
-            if (document.readyState === 'complete') {
-                startLoop();
-            } else {
-                window.addEventListener('load', startLoop);
-            }
-        })();
-    </script>
-
     <nav class="navbar">
         <div class="logo">
             Create<span>Mechanical</span>
@@ -151,19 +78,7 @@
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本协议的权利，继续使用即视为接受修改。</p>
             
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 联系我们</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">侵权投诉 / 个人信息问题：creatmodel@163.com</p>
-            
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">9. 个人信息收集与保护</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">
-                本网站在您注册、登录、发布蓝图、举报内容时，会收集以下必要信息：<br>
-                - 账号信息：用户名、密码（加密存储，不对外展示）<br>
-                - 联系方式：邮箱（可选）<br>
-                - 技术信息：注册IP、发布IP、操作时间戳<br>
-                - 内容信息：您发布的蓝图标题、描述、链接<br><br>
-                上述信息仅用于：账号安全验证、防止恶意刷量、追溯违规行为、社区内容展示与审核。<br>
-                我们不会向任何第三方出售或共享您的个人信息。<br>
-                您可随时联系管理员注销账号，注销后个人信息将被清除或匿名化处理。
-            </p>
+            <p style="margin-bottom: 12px; color: #9ca3af;">如有疑问，请联系：creatmodel@163.com</p>
             
             <button id="closeAgreement" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
@@ -173,7 +88,7 @@
     <div id="disclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
-            <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2026年6月13日</strong></p>
+            <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2025年1月1日</strong></p>
             
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 关联关系声明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联、合作或背书关系。</p>
@@ -184,31 +99,25 @@
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 使用风险</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">下载或使用本网站的任何蓝图，风险由您自行承担。因使用本网站内容导致的任何损失，本网站不承担任何赔偿责任。</p>
             
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 技术检测声明</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">本网站已采取行业常规的安全检测措施（包括自动化扫描和人工抽查）。但技术的局限性意味着无法保证100%的准确性和完整性。本网站不对检测结果的准确性作任何保证。</p>
-            
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 第三方链接</h4>
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 第三方链接</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站可能包含指向第三方网站的链接，本网站不对第三方网站的内容、安全性或可用性承担任何责任。</p>
             
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 侵权通知</h4>
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 侵权通知</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">若您认为本网站存在侵犯您合法权益的内容，请联系：creatmodel@163.com。本网站在收到有效通知后48小时内核实并处理。</p>
             
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 个人信息说明</h4>
-            <p style="margin-bottom: 12px; color: #9ca3af;">本网站依法收集必要个人信息，详见用户协议第9条。</p>
-            
-            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 声明的修改</h4>
+            <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 声明的修改</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本免责声明的权利，修改后的版本自公布之日起生效。</p>
             
             <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
-
     <div style="text-align: center; font-size: 0.7rem; color: #6b7280; padding: 20px;">
          © 2026 机械动力蓝图社区 | 侵权投诉：creatmodel@163.com
     </div>
 
     <script src="script.js"></script>
     <script>
+        // 协议弹窗
         document.getElementById('showAgreement').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('agreementModal').style.display = 'flex';
@@ -217,6 +126,7 @@
             document.getElementById('agreementModal').style.display = 'none';
         });
         
+        // 免责声明弹窗
         document.getElementById('showDisclaimer').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('disclaimerModal').style.display = 'flex';
@@ -225,6 +135,7 @@
             document.getElementById('disclaimerModal').style.display = 'none';
         });
         
+        // 点击弹窗背景关闭
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('agreementModal')) {
                 document.getElementById('agreementModal').style.display = 'none';

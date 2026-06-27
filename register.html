@@ -6,82 +6,8 @@
     <title>注册 - 机械动力蓝图社区</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="page.svg">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
-
-    <!-- ===== Minecraft 风格标题 ===== -->
-    <div id="minecraftTitle" style="
-        text-align: center;
-        padding: 20px 0 0 0;
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        font-size: 28px;
-        color: #FFD700;
-        text-shadow: 
-            2px 2px 0 #8B7500,
-            4px 4px 8px rgba(0,0,0,0.8),
-            0 0 20px rgba(255,215,0,0.2);
-        letter-spacing: 2px;
-        transition: transform 0.6s ease, text-shadow 0.6s ease;
-        transform-origin: center;
-        cursor: default;
-        user-select: none;
-    ">
-        共建机械动力中文蓝图库
-    </div>
-
-    <style>
-        #minecraftTitle.glowing {
-            text-shadow: 
-                2px 2px 0 #8B7500,
-                4px 4px 8px rgba(0,0,0,0.8),
-                0 0 30px rgba(255,215,0,0.6),
-                0 0 60px rgba(255,215,0,0.2);
-        }
-    </style>
-
-    <script>
-        (function() {
-            const title = document.getElementById('minecraftTitle');
-            if (!title) return;
-
-            function randomScale() {
-                const scale = 0.85 + Math.random() * 0.3;
-                const duration = 400 + Math.random() * 400;
-
-                title.style.transition = `transform ${duration}ms ease, text-shadow ${duration}ms ease`;
-                title.style.transform = `scale(${scale})`;
-
-                if (Math.random() > 0.4) {
-                    title.classList.add('glowing');
-                } else {
-                    title.classList.remove('glowing');
-                }
-
-                setTimeout(() => {
-                    title.style.transition = `transform 400ms ease, text-shadow 400ms ease`;
-                    title.style.transform = 'scale(1)';
-                    title.classList.remove('glowing');
-                }, duration + 100);
-            }
-
-            function startLoop() {
-                const delay = 1500 + Math.random() * 2500;
-                setTimeout(() => {
-                    randomScale();
-                    startLoop();
-                }, delay);
-            }
-
-            if (document.readyState === 'complete') {
-                startLoop();
-            } else {
-                window.addEventListener('load', startLoop);
-            }
-        })();
-    </script>
-
     <nav class="navbar">
         <div class="logo">
             Create<span>Mechanical</span>
@@ -116,16 +42,13 @@
                     <input type="email" id="email" placeholder="example@domain.com">
                 </div>
 
-                <div class="form-group">
-                    <div id="turnstile-container" class="cf-turnstile" data-sitekey="0x4AAAAAADj8FUL5FsPg34ng" data-callback="onTurnstileSuccess"></div>
-                    <div id="turnstileError" class="error" style="display: none;">请完成人机验证</div>
-                </div>
-                
+                <!-- 协议勾选 -->
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="agreeTerms" required>
                     <label>我已阅读并同意 <a href="#" id="showAgreement">《用户协议》</a> 和 <a href="#" id="showDisclaimer">《免责声明》</a></label>
                 </div>
 
+                <!-- 个人信息收集声明 -->
                 <div class="form-group" style="font-size: 0.7rem; color: #6b7280; margin-top: 8px; border-top: 1px solid #2a2a2a; padding-top: 12px;">
                     <p><strong>个人信息收集说明</strong></p>
                     <p>本网站在您注册、登录、发布蓝图、举报内容时，会收集以下信息：</p>
@@ -138,7 +61,7 @@
                     <p>我们不会向任何第三方出售或共享您的个人信息。<br>
                     详细说明见<a href="#" id="showPrivacy">《个人信息收集声明》</a>。</p>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary" style="width: 100%;">注册</button>
             </form>
             <p style="text-align: center; margin-top: 20px; color: #6b7280;">
@@ -152,37 +75,37 @@
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #3b82f6;">用户协议</h3>
             <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2026年6月13日</strong></p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 接受协议</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">注册或使用本网站即表示您同意本协议的全部条款。如果您不同意，请勿注册或使用本网站。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 网站性质</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联或背书关系。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 用户承诺</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">您承诺并保证：</p>
             <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（1）上传的蓝图为您本人创作，或已获得原作者的明确书面授权；</p>
             <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（2）您提供的链接指向的文件不包含恶意代码、病毒、后门程序或其他破坏性内容；</p>
             <p style="margin-bottom: 12px; color: #9ca3af; margin-left: 20px;">（3）您上传的内容不侵犯任何第三方的知识产权、隐私权或其他合法权益。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 禁止上传的内容</h4>
             <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（1）包含病毒、恶意代码、后门程序的蓝图文件；</p>
             <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（2）未经原作者许可的付费蓝图、付费模组；</p>
             <p style="margin-bottom: 8px; color: #9ca3af; margin-left: 20px;">（3）包含色情、暴力、仇恨言论或非法内容；</p>
             <p style="margin-bottom: 12px; color: #9ca3af; margin-left: 20px;">（4）纯粹用于广告推广的链接或重复发布的灌水内容。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 违规处理</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">如您违反本协议，本网站有权删除内容、封禁账号、封禁IP，并在必要时向有关部门提供您的注册信息。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 责任归属</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">您对您账号下的所有行为承担全部法律责任。因您上传的内容引发的任何索赔由您独立承担。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 协议的修改</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本协议的权利，继续使用即视为接受修改。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 联系我们</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">侵权投诉 / 个人信息问题：creatmodel@163.com</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">9. 个人信息收集与保护</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">
                 本网站在您注册、登录、发布蓝图、举报内容时，会收集以下必要信息：<br>
@@ -194,7 +117,7 @@
                 我们不会向任何第三方出售或共享您的个人信息。<br>
                 您可随时联系管理员注销账号，注销后个人信息将被清除或匿名化处理。
             </p>
-            
+
             <button id="closeAgreement" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
@@ -204,36 +127,36 @@
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #f97316;">免责声明</h3>
             <p style="margin-bottom: 12px; color: #9ca3af;"><strong>最后更新日期：2026年6月13日</strong></p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">1. 关联关系声明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站为《我的世界》机械动力（Create Mod）蓝图分享平台。本网站与Mojang AB、Microsoft、Create Mod开发团队均无任何关联、合作或背书关系。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">2. 用户内容免责</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站所有蓝图文件、链接及文字描述均由用户自行上传。本网站不对用户上传内容的合法性、安全性、准确性、完整性作任何保证。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">3. 使用风险</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">下载或使用本网站的任何蓝图，风险由您自行承担。因使用本网站内容导致的任何损失，本网站不承担任何赔偿责任。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">4. 技术检测声明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站已采取行业常规的安全检测措施（包括自动化扫描和人工抽查）。但技术的局限性意味着无法保证100%的准确性和完整性。本网站不对检测结果的准确性作任何保证。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">5. 第三方链接</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站可能包含指向第三方网站的链接，本网站不对第三方网站的内容、安全性或可用性承担任何责任。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">6. 侵权通知</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">若您认为本网站存在侵犯您合法权益的内容，请联系：creatmodel@163.com。本网站在收到有效通知后48小时内核实并处理。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">7. 个人信息说明</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站依法收集必要个人信息，详见用户协议第9条。</p>
-            
+
             <h4 style="margin: 16px 0 8px; color: #e0e0e0;">8. 声明的修改</h4>
             <p style="margin-bottom: 12px; color: #9ca3af;">本网站保留随时修改本免责声明的权利，修改后的版本自公布之日起生效。</p>
-            
+
             <button id="closeDisclaimer" class="btn btn-primary" style="margin-top: 20px;">关闭</button>
         </div>
     </div>
 
-    <!-- 个人信息收集声明弹窗 -->
+    <!-- ========== 个人信息收集声明弹窗 ========== -->
     <div id="privacyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
         <div style="background: #1a1a1a; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
             <h3 style="margin-bottom: 20px; color: #3b82f6;">个人信息收集声明</h3>
@@ -255,14 +178,8 @@
     </div>
 
     <script src="script.js"></script>
-    
     <script>
-        window.onTurnstileSuccess = function(token) {
-            window.turnstileToken = token;
-            document.getElementById('turnstileError').style.display = 'none';
-            console.log('✅ Turnstile 验证成功，token:', token);
-        };
-        
+        // ===== 协议弹窗 =====
         document.getElementById('showAgreement').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('agreementModal').style.display = 'flex';
@@ -270,7 +187,7 @@
         document.getElementById('closeAgreement').addEventListener('click', () => {
             document.getElementById('agreementModal').style.display = 'none';
         });
-        
+
         document.getElementById('showDisclaimer').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('disclaimerModal').style.display = 'flex';
@@ -278,7 +195,7 @@
         document.getElementById('closeDisclaimer').addEventListener('click', () => {
             document.getElementById('disclaimerModal').style.display = 'none';
         });
-        
+
         document.getElementById('showPrivacy').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('privacyModal').style.display = 'flex';
@@ -286,7 +203,8 @@
         document.getElementById('closePrivacy').addEventListener('click', () => {
             document.getElementById('privacyModal').style.display = 'none';
         });
-        
+
+        // 点击背景关闭
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('agreementModal')) {
                 document.getElementById('agreementModal').style.display = 'none';
@@ -298,24 +216,17 @@
                 document.getElementById('privacyModal').style.display = 'none';
             }
         });
-        
+
+        // ===== 注册提交（无 Turnstile） =====
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const token = window.turnstileToken;
-            
-            if (!token) {
-                document.getElementById('turnstileError').style.display = 'block';
-                return;
-            }
-            document.getElementById('turnstileError').style.display = 'none';
-            
+
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const email = document.getElementById('email').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
-            
+
             if (username.length < 3) {
                 showMessage('用户名至少3个字符', 'error');
                 return;
@@ -332,21 +243,21 @@
                 showMessage('请阅读并同意用户协议和免责声明', 'error');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        username, 
-                        password, 
+                    body: JSON.stringify({
+                        username,
+                        password,
                         email: email || '',
-                        agreedTosVersion: 'v1.0',
-                        token: token
+                        agreedTosVersion: 'v1.0'
+                        // 不再发送 token
                     })
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     localStorage.setItem('token', result.data.token);
                     localStorage.setItem('username', result.data.username);
@@ -361,7 +272,7 @@
                 showMessage('网络错误，请稍后重试', 'error');
             }
         });
-        
+
         updateNavbar();
     </script>
 </body>
